@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { handleLogin } from './action';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -36,83 +37,93 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-2">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-10 shadow-md">
-        <div>
-          <h1 className="text-center text-3xl font-bold text-gray-900">Sign in to your account</h1>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-              Sign up
-            </Link>
-          </p>
-        </div>
+    <div className="relative min-h-screen flex flex-col items-center justify-center py-2">
+      {/* Background Image */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/images/wallpaper2.jpg"
+          alt="Forest background"
+          fill
+          className="object-cover"
+          quality={100}
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50"></div>
+      </div>
+      
+      <div className="z-10 text-center mb-10">
+        <h1 className="text-yellow-400 text-4xl md:text-5xl lg:text-6xl font-serif font-bold tracking-tighter">
+          Welcome Back
+        </h1>
+        
+      </div>
+      
+      <div className="w-full max-w-md z-10 px-8">
+        {error && (
+          <div className="rounded-md bg-red-900/50 backdrop-blur-sm p-4 mb-6 text-yellow-400 font-serif text-center">
+            <p>{error}</p>
+          </div>
+        )}
 
-        <p className="text-center text-red-500 mt-4">
-          {error && <span>{error || "Couldn&apos;t log in. Please try again."}</span>}
-        </p>
-
-        <form onSubmit={onSubmit} className="mt-8 space-y-6">
-          <div className="space-y-4 rounded-md shadow-sm">
+        <form onSubmit={onSubmit} className="space-y-6">
+          <div className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                placeholder="example@email.com"
+                className="mt-1 block w-full bg-transparent backdrop-blur-sm border-0 border-b-2 border-yellow-400 px-3 py-3 text-yellow-400 placeholder-yellow-400/60 focus:border-yellow-500 focus:outline-none focus:ring-0 font-serif text-lg"
+                placeholder="Email address"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
               <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-                placeholder="••••••••"
+                className="mt-1 block w-full bg-transparent backdrop-blur-sm border-0 border-b-2 border-yellow-400 px-3 py-3 text-yellow-400 placeholder-yellow-400/60 focus:border-yellow-500 focus:outline-none focus:ring-0 font-serif text-lg"
+                placeholder="Password"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-yellow-400 font-serif">
             <div className="flex items-center">
               <input
                 id="remember_me"
                 name="remember_me"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-yellow-400 text-[#1E7E6A] focus:ring-[#1E7E6A]"
               />
-              <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="remember_me" className="ml-2 block text-sm">
                 Remember me
               </label>
             </div>
 
-            <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                Forgot your password?
-              </a>
-            </div>
+           
           </div>
 
           <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400"
+              className="w-full px-6 py-3 bg-[#1E7E6A] text-white font-serif rounded border-2 border-[#1E7E6A] hover:bg-transparent hover:text-[#1E7E6A] transition-colors duration-300 shadow-md text-lg"
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
+          </div>
+          
+          <div className="text-center mt-6 font-serif text-yellow-400">
+            <p>Don't have an account? Register{' '}
+              <Link href="/register" className="font-semibold text-green-500 ">
+                Here
+              </Link>
+            </p>
           </div>
         </form>
       </div>

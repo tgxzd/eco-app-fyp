@@ -34,12 +34,24 @@ export async function getSession(): Promise<{ user: User | null; isAuthenticated
     const cookieStore = await cookies();
     const token = cookieStore.get(COOKIE_NAME)?.value;
     
+    console.log('Session check:', { 
+      hasToken: !!token,
+      tokenLength: token ? token.length : 0
+    });
+    
     if (!token) {
       return { user: null, isAuthenticated: false };
     }
     
     // Verify the token
     const user = await verifyToken(token);
+    
+    if (!user) {
+      console.error('Invalid token received');
+    } else {
+      console.log('User authenticated:', { email: user.email });
+    }
+    
     return {
       user,
       isAuthenticated: !!user,

@@ -16,6 +16,10 @@ const COOKIE_OPTIONS = {
   sameSite: 'lax' as const,
   path: '/',
   maxAge: 30 * 24 * 60 * 60, // 30 days
+  // Don't set domain in local development
+  ...(process.env.NODE_ENV === 'production' && {
+    domain: process.env.COOKIE_DOMAIN || undefined,
+  })
 };
 
 // Types
@@ -249,6 +253,16 @@ export async function login(email: string, password: string, rememberMe = false)
       ...COOKIE_OPTIONS,
       maxAge: rememberMe ? 90 * 24 * 60 * 60 : COOKIE_OPTIONS.maxAge // 90 days if remember me is checked
     };
+    
+    console.log('Setting auth cookie:', {
+      name: COOKIE_NAME,
+      tokenLength: token.length,
+      options: {
+        ...cookieOptions,
+        // Don't log the actual token value for security
+        value: '[REDACTED]'
+      }
+    });
     
     cookieStore.set({
       name: COOKIE_NAME,

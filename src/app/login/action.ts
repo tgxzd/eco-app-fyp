@@ -10,7 +10,11 @@ export async function handleLogin(formData: FormData) {
     const password = formData.get('password') as string;
     const rememberMe = formData.get('remember_me') === 'on';
 
-    console.log('Server Action: Login attempt for', { email, rememberMe });
+    console.log('Server Action: Login attempt for', { 
+      email, 
+      rememberMe, 
+      rememberMeValue: formData.get('remember_me')
+    });
 
     // Validate inputs
     if (!email || !password) {
@@ -23,6 +27,12 @@ export async function handleLogin(formData: FormData) {
 
     // Authenticate user with remember me option
     const result = await login(email, password, rememberMe);
+    
+    console.log('Login result:', { 
+      success: result.success, 
+      message: result.message,
+      hasUser: !!result.user
+    });
     
     if (!result.success) {
       return { error: result.message || 'Invalid credentials' };
