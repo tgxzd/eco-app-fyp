@@ -1,40 +1,45 @@
 import { requireAuth } from '@/lib/session';
-import { logout } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
+import NavHeader from '@/components/ui/nav-header';
 
 export default async function DashboardPage() {
   // Ensure user is authenticated
   const user = await requireAuth();
-  
-  // You can implement any server-side form handling here
-  async function handleLogoutAction() {
-    'use server';
-    await logout();
-    redirect('/login');
-  }
 
   return (
-    <div className="container mx-auto py-10 max-w-4xl">
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <p className="mb-2">
-          Welcome, <span className="font-semibold">{user.name || user.email}</span>!
-        </p>
-        <div className="border-t border-gray-200 pt-4 mt-4">
-          <h2 className="text-lg font-semibold mb-2">Your Account</h2>
-          <p><span className="font-medium">Email:</span> {user.email}</p>
-          <p><span className="font-medium">User ID:</span> {user.id}</p>
-        </div>
+    <div className="relative min-h-screen bg-[#121212]">
+      {/* Wallpaper Background with overlay */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/images/wallpaper3.jpg"
+          alt="Wallpaper background"
+          fill
+          className="object-cover opacity-60"
+          quality={100}
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
       </div>
       
-      <form action={handleLogoutAction}>
-        <button 
-          type="submit"
-          className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-        >
-          Sign Out
-        </button>
-      </form>
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center">
+        <header className="w-full py-4 md:py-8 bg-black/50 border-b border-amber-700/30">
+          <NavHeader />
+        </header>
+        
+        <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-0 w-full">
+          <div className="flex flex-col items-center px-6 py-8 md:px-8 md:py-10 bg-black/40 border-t-2 border-b-2 border-amber-700/50 max-w-lg w-full mx-4">
+            <h1 className="font-serif text-xl md:text-2xl font-bold mb-2 md:mb-3 text-amber-100 tracking-wide uppercase text-center">
+              Welcome
+            </h1>
+            <div className="w-12 md:w-16 h-0.5 bg-amber-700 mb-4 md:mb-6"></div>
+            <p className="font-serif text-lg md:text-xl text-amber-100 tracking-wider text-center break-words">
+              {user.name || user.email}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 
