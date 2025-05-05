@@ -2,10 +2,15 @@ import { requireAuth } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import NavHeader from '@/components/ui/nav-header';
+import Link from 'next/link';
+import MapWrapper from '@/components/MapWrapper';
 
 export default async function DashboardPage() {
   // Ensure user is authenticated
   const user = await requireAuth();
+  
+  // Get Google Maps API key from env
+  const mapsApiKey = process.env.MAPS_API || '';
 
   return (
     <div className="relative min-h-screen bg-[#121212]">
@@ -28,10 +33,18 @@ export default async function DashboardPage() {
           <NavHeader user={{ name: user.name || undefined, email: user.email }} />
         </header>
         
-        <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-0 w-full">
-          <div className="flex flex-col items-center px-6 py-8 md:px-8 md:py-10 bg-black/40 border-t-2 border-b-2 border-amber-700/50 max-w-lg w-full mx-4">
-            {/* Content goes here */}
+        <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-8 w-full">
+          {/* Google Maps Container */}
+          <div className="mb-8 w-full max-w-4xl">
+            <MapWrapper apiKey={mapsApiKey} />
           </div>
+          
+          <Link href="/create-report" className="group">
+            <button className="px-8 py-4 bg-amber-700/30 text-amber-100 font-serif uppercase tracking-widest text-lg border-2 border-amber-700 hover:bg-amber-700/50 transition-all duration-300 shadow-lg hover:shadow-amber-700/20 flex items-center justify-center space-x-2">
+              <span>Create New Report</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+            </button>
+          </Link>
         </div>
       </div>
     </div>

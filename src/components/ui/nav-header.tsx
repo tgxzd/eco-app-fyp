@@ -21,18 +21,28 @@ function NavHeader({ user }: { user: User }) {
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const router = useRouter();
   const displayName = user?.name || user?.email || '';
 
   // Animation timer to hide welcome message after 3 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 3500);
+    // Check if user has already seen the welcome animation
+    const hasSeenWelcome = localStorage.getItem(`welcome_seen_${user.email}`);
     
-    return () => clearTimeout(timer);
-  }, []);
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+      // Set flag in localStorage to prevent showing again
+      localStorage.setItem(`welcome_seen_${user.email}`, 'true');
+      
+      // Hide welcome message after 3.5 seconds
+      const timer = setTimeout(() => {
+        setShowWelcome(false);
+      }, 3500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user.email]);
 
   // Client-side function to handle logout process
   const onLogout = async () => {
@@ -41,6 +51,8 @@ function NavHeader({ user }: { user: User }) {
       // Call the server action
       const result = await handleLogout();
       if (result.success) {
+        // Clear the welcome flag when logging out to show welcome on next login
+        localStorage.removeItem(`welcome_seen_${user.email}`);
         router.push('/login');
         router.refresh(); // Force a refresh to update auth state
       }
@@ -131,9 +143,9 @@ function NavHeader({ user }: { user: User }) {
         >
           <Tab setPosition={setPosition} href="/dashboard">Home</Tab>
           <div className="text-amber-700 self-center mx-1">•</div>
-          <Tab setPosition={setPosition} href="#">Your Report</Tab>
+          <Tab setPosition={setPosition} href="/your-report">Your Report</Tab>
           <div className="text-amber-700 self-center mx-1">•</div>
-          <Tab setPosition={setPosition} href="#">Profile</Tab>
+          <Tab setPosition={setPosition} href="/profile">Profile</Tab>
           
           <Cursor position={position} />
         </ul>
@@ -163,9 +175,9 @@ function NavHeader({ user }: { user: User }) {
           <div className="flex flex-col items-center py-4">
             <MobileTab href="/dashboard">Home</MobileTab>
             <div className="w-16 h-px bg-amber-700/30 my-2"></div>
-            <MobileTab href="#">Your Report</MobileTab>
+            <MobileTab href="/your-report">Your Report</MobileTab>
             <div className="w-16 h-px bg-amber-700/30 my-2"></div>
-            <MobileTab href="#">Profile</MobileTab>
+            <MobileTab href="/profile">Profile</MobileTab>
             <div className="w-16 h-px bg-amber-700/30 my-2"></div>
             <div className="mt-2 w-full flex justify-center">
               <button 
