@@ -1,13 +1,19 @@
 "use client"; 
 
-import React, { useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { handleLogout } from "@/lib/actions";
 
-function NavHeader() {
+// Define the User type
+type User = {
+  name?: string;
+  email: string;
+};
+
+function NavHeader({ user }: { user: User }) {
   const [position, setPosition] = useState({
     left: 0,
     width: 0,
@@ -15,7 +21,18 @@ function NavHeader() {
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(true);
   const router = useRouter();
+  const displayName = user?.name || user?.email || '';
+
+  // Animation timer to hide welcome message after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 3500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Client-side function to handle logout process
   const onLogout = async () => {
@@ -34,11 +51,65 @@ function NavHeader() {
     }
   };
 
+  // Animation variants
+  const overlayVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 }
+  };
+  
+  const welcomeVariants = {
+    initial: { opacity: 0, scale: 0.9 },
+    animate: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 1.1 }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
+      {/* Full-screen Welcome Animation */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div 
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={overlayVariants}
+            transition={{ duration: 0.7 }}
+          >
+            {/* Dark overlay */}
+            <div className="absolute inset-0 bg-black/90"></div>
+            
+            {/* Welcome content */}
+            <motion.div
+              className="relative z-10"
+              variants={welcomeVariants}
+              transition={{ 
+                duration: 0.7, 
+                delay: 0.3,
+                exit: { duration: 0.5 }
+              }}
+            >
+              <div className="px-16 py-12 text-center border-2 border-amber-700 bg-black/70">
+                <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4 text-amber-100 tracking-wide uppercase">
+                  Welcome
+                </h1>
+                <div className="w-24 h-0.5 bg-amber-700 mb-6 mx-auto"></div>
+                <p className="font-serif text-2xl md:text-3xl text-amber-100 tracking-wider">
+                  {displayName}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Desktop Navigation */}
       <div className="mb-2 w-24 h-1 bg-amber-700 hidden md:block"></div>
-      <div className="w-full flex md:hidden justify-end px-6 py-2">
+      <div className="w-full flex md:hidden justify-between px-6 py-2 items-center">
+        <div className="text-amber-100 font-serif tracking-wide">
+          {displayName}
+        </div>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="text-amber-700"
@@ -50,6 +121,10 @@ function NavHeader() {
       
       {/* Desktop Menu */}
       <div className="relative mx-auto hidden md:flex w-fit px-6 py-2 bg-[#2c2c2c] border-t-2 border-b-2 border-amber-700 items-center">
+        <div className="mr-4 pr-4 border-r border-amber-700/30 text-amber-100 font-serif tracking-wide">
+          {displayName}
+        </div>
+        
         <ul
           className="flex items-center"
           onMouseLeave={() => setPosition((pv) => ({ ...pv, opacity: 0 }))}
