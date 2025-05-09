@@ -1,7 +1,7 @@
 "use client"; 
 
 import React, { useRef, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Menu, X, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -9,11 +9,12 @@ import { handleLogout } from "@/lib/actions";
 
 // Define the User type
 type User = {
-  name?: string;
+  id?: string;
+  name?: string | null;
   email: string;
 };
 
-function NavHeader({ user }: { user: User }) {
+function NavHeader() {
   const [position, setPosition] = useState({
     left: 0,
     width: 0,
@@ -21,28 +22,34 @@ function NavHeader({ user }: { user: User }) {
   });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const displayName = user?.name || user?.email || '';
-
-  // Animation timer to hide welcome message after 3 seconds
+  
   useEffect(() => {
-    // Check if user has already seen the welcome animation
-    const hasSeenWelcome = localStorage.getItem(`welcome_seen_${user.email}`);
-    
-    if (!hasSeenWelcome) {
-      setShowWelcome(true);
-      // Set flag in localStorage to prevent showing again
-      localStorage.setItem(`welcome_seen_${user.email}`, 'true');
-      
-      // Hide welcome message after 3.5 seconds
-      const timer = setTimeout(() => {
-        setShowWelcome(false);
-      }, 3500);
-      
-      return () => clearTimeout(timer);
+    async function fetchUserSession() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/auth/session');
+        const data = await response.json();
+        
+        if (data.success && data.isAuthenticated && data.user) {
+          setUser(data.user);
+        } else {
+          // Not authenticated, redirect to login
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Error fetching user session:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  }, [user.email]);
+    
+    fetchUserSession();
+  }, [router]);
+  
+  const displayName = user?.name || user?.email || '';
 
   // Client-side function to handle logout process
   const onLogout = async () => {
@@ -51,8 +58,6 @@ function NavHeader({ user }: { user: User }) {
       // Call the server action
       const result = await handleLogout();
       if (result.success) {
-        // Clear the welcome flag when logging out to show welcome on next login
-        localStorage.removeItem(`welcome_seen_${user.email}`);
         router.push('/login');
         router.refresh(); // Force a refresh to update auth state
       }
@@ -63,59 +68,17 @@ function NavHeader({ user }: { user: User }) {
     }
   };
 
-  // Animation variants
-  const overlayVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 }
-  };
-  
-  const welcomeVariants = {
-    initial: { opacity: 0, scale: 0.9 },
-    animate: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 1.1 }
-  };
+  // Show loading state while fetching user data
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto flex justify-center py-4">
+        <div className="animate-pulse bg-amber-700/30 h-8 w-32 rounded"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto flex flex-col items-center">
-      {/* Full-screen Welcome Animation */}
-      <AnimatePresence>
-        {showWelcome && (
-          <motion.div 
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={overlayVariants}
-            transition={{ duration: 0.7 }}
-          >
-            {/* Dark overlay */}
-            <div className="absolute inset-0 bg-black/90"></div>
-            
-            {/* Welcome content */}
-            <motion.div
-              className="relative z-10"
-              variants={welcomeVariants}
-              transition={{ 
-                duration: 0.7, 
-                delay: 0.3,
-                exit: { duration: 0.5 }
-              }}
-            >
-              <div className="px-16 py-12 text-center border-2 border-amber-700 bg-black/70">
-                <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4 text-amber-100 tracking-wide uppercase">
-                  Welcome
-                </h1>
-                <div className="w-24 h-0.5 bg-amber-700 mb-6 mx-auto"></div>
-                <p className="font-serif text-2xl md:text-3xl text-amber-100 tracking-wider">
-                  {displayName}
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Desktop Navigation */}
       <div className="mb-2 w-24 h-1 bg-amber-700 hidden md:block"></div>
       <div className="w-full flex md:hidden justify-between px-6 py-2 items-center">

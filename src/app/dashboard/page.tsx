@@ -30,7 +30,7 @@ export default async function DashboardPage() {
       {/* Content */}
       <div className="relative z-10 min-h-screen flex flex-col items-center">
         <header className="w-full py-4 md:py-8 bg-black/50 border-b border-amber-700/30">
-          <NavHeader user={{ name: user.name || undefined, email: user.email }} />
+          <NavHeader/>
         </header>
         
         <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-8 w-full">
