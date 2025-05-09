@@ -37,7 +37,7 @@ export async function getProtectedData(): Promise<ApiResponse> {
     data: {
       message: 'This is protected data',
       user: {
-        id: user.id,
+        id: user.user_id,
         email: user.email,
         name: user.name,
       },

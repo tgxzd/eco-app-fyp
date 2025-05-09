@@ -14,7 +14,7 @@ const COOKIE_NAME = 'session_token';
 // Generate a new token with updated user information
 async function generateUpdatedToken(userId: string, email: string, name: string | null) {
   return sign(
-    { id: userId, email, name },
+    { user_id: userId, email, name },
     JWT_SECRET,
     { expiresIn: '30d' }
   );
@@ -37,13 +37,13 @@ export async function updateName(formData: FormData) {
     
     // Update the user in the database
     const updatedUser = await prisma.user.update({
-      where: { id: user.id },
+      where: { user_id: user.user_id },
       data: { name: newName }
     });
     
     // Update the token to reflect the name change
     const newToken = await generateUpdatedToken(
-      updatedUser.id,
+      updatedUser.user_id,
       updatedUser.email,
       updatedUser.name
     );
@@ -98,7 +98,7 @@ export async function updatePassword(formData: FormData) {
     
     // Get the user with password from database
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.id }
+      where: { user_id: user.user_id }
     });
     
     if (!dbUser) {
@@ -117,7 +117,7 @@ export async function updatePassword(formData: FormData) {
     
     // Update the password
     await prisma.user.update({
-      where: { id: user.id },
+      where: { user_id: user.user_id },
       data: { password: hashedPassword }
     });
     

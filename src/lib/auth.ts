@@ -24,7 +24,7 @@ const COOKIE_OPTIONS = {
 
 // Types
 export type User = {
-  id: string;
+  user_id: string;
   name: string | null;
   email: string;
 };
@@ -39,8 +39,8 @@ export type AuthResult = {
  * JWT token utilities
  */
 export async function generateToken(user: User): Promise<string> {
-  const { id, email, name } = user;
-  return sign({ id, email, name }, JWT_SECRET, { expiresIn: '30d' });
+  const { user_id, email, name } = user;
+  return sign({ user_id, email, name }, JWT_SECRET, { expiresIn: '30d' });
 }
 
 export async function verifyToken(token: string): Promise<User | null> {
@@ -122,7 +122,7 @@ export async function loginHandler(email: string, password: string, rememberMe =
     }
     
     const token = await generateToken({
-      id: user.id,
+      user_id: user.user_id,
       email: user.email,
       name: user.name,
     });
@@ -131,7 +131,7 @@ export async function loginHandler(email: string, password: string, rememberMe =
     const response = NextResponse.json({
       success: true,
       user: {
-        id: user.id,
+        user_id: user.user_id,
         email: user.email,
         name: user.name,
       }
@@ -183,7 +183,7 @@ export async function registerHandler(name: string, email: string, password: str
     });
     
     const token = await generateToken({
-      id: newUser.id,
+      user_id: newUser.user_id,
       email: newUser.email,
       name: newUser.name,
     });
@@ -192,7 +192,7 @@ export async function registerHandler(name: string, email: string, password: str
     const response = NextResponse.json({
       success: true,
       user: {
-        id: newUser.id,
+        user_id: newUser.user_id,
         email: newUser.email,
         name: newUser.name,
       }
@@ -242,7 +242,7 @@ export async function login(email: string, password: string, rememberMe = false)
     }
     
     const token = await generateToken({
-      id: user.id,
+      user_id: user.user_id,
       email: user.email,
       name: user.name,
     });
@@ -273,7 +273,7 @@ export async function login(email: string, password: string, rememberMe = false)
     return {
       success: true,
       user: {
-        id: user.id,
+        user_id: user.user_id,
         email: user.email,
         name: user.name,
       },
@@ -304,7 +304,7 @@ export async function register(name: string, email: string, password: string): P
     });
     
     const token = await generateToken({
-      id: newUser.id,
+      user_id: newUser.user_id,
       email: newUser.email,
       name: newUser.name,
     });
@@ -320,7 +320,7 @@ export async function register(name: string, email: string, password: string): P
     return {
       success: true,
       user: {
-        id: newUser.id,
+        user_id: newUser.user_id,
         email: newUser.email,
         name: newUser.name,
       },

@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 // Types
 export type User = {
-  id: string;
+  user_id: string;
   name: string | null;
   email: string;
 };

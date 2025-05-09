@@ -9,9 +9,9 @@ import { handleLogout } from "@/lib/actions";
 
 // Define the User type
 type User = {
-  id?: string;
-  name?: string | null;
+  user_id: string;
   email: string;
+  name: string | null;
 };
 
 function NavHeader() {

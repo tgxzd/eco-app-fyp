@@ -37,7 +37,7 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     // This is a workaround for Prisma client generation issues
     const result = await prisma.$queryRaw`
       INSERT INTO "Report" ("id", "description", "category", "status", "createdAt", "updatedAt", "userId")
-      VALUES (gen_random_uuid(), ${description}, ${category}, 'pending', NOW(), NOW(), ${user.id})
+      VALUES (gen_random_uuid(), ${description}, ${category}, 'pending', NOW(), NOW(), ${user.user_id})
       RETURNING *
     `;
 
