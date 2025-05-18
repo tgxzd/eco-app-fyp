@@ -3,14 +3,35 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import NavHeader from '@/components/ui/nav-header';
 import Link from 'next/link';
-import MapWrapper from '@/components/MapWrapper';
+import GoogleMap, { ReportLocation } from '@/components/GoogleMap';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export default async function DashboardPage() {
   // Ensure user is authenticated
   const user = await requireAuth();
   
   // Get Google Maps API key from env
-  const mapsApiKey = process.env.MAPS_API || '';
+  const mapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
+  // Create a type-safe raw query
+  const reportLocationsQuery = Prisma.sql`
+    SELECT 
+      r.id as report_id, 
+      r.category, 
+      r.status, 
+      r.description,
+      l.id as location_id, 
+      l.latitude, 
+      l.longitude, 
+      l.address
+    FROM "Report" r
+    INNER JOIN "Location" l ON r."locationId" = l.id
+    ORDER BY r."createdAt" DESC
+  `;
+  
+  // Execute the query
+  const reportLocations = await prisma.$queryRaw<ReportLocation[]>(reportLocationsQuery);
 
   return (
     <div className="relative min-h-screen bg-[#121212]">
@@ -36,7 +57,10 @@ export default async function DashboardPage() {
         <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-8 w-full">
           {/* Google Maps Container */}
           <div className="mb-8 w-full max-w-4xl">
-            <MapWrapper apiKey={mapsApiKey} />
+            <div className="bg-black/40 p-4 border border-amber-700/50">
+              <h2 className="text-amber-100 font-serif text-xl mb-4 tracking-wide text-center">Location Map</h2>
+              <GoogleMap reportLocations={reportLocations} />
+            </div>
           </div>
           
           <Link href="/create-report" className="group">

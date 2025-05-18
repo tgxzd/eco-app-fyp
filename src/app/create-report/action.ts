@@ -26,6 +26,11 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     const description = formData.get('description') as string;
     const category = formData.get('category') as string;
     const imageFile = formData.get('image') as File;
+    
+    // Get location data if available
+    const latitude = formData.get('latitude') as string;
+    const longitude = formData.get('longitude') as string;
+    const address = formData.get('address') as string;
 
     // Validate input
     if (!description || !category) {
@@ -92,27 +97,66 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
       }
     }
 
-    // Insert the report using raw SQL query
-    // This is a workaround for Prisma client generation issues
-    const result = await prisma.$queryRaw`
+    // First, create a location record if location data is provided
+    let locationId = null;
+    if (latitude && longitude && address) {
+      try {
+        // Create location using raw SQL
+        const locationResult = await prisma.$queryRaw`
+          INSERT INTO "Location" (
+            "id",
+            "longitude",
+            "latitude",
+            "address",
+            "timestamp",
+            "userId",
+            "createdAt",
+            "updatedAt"
+          )
+          VALUES (
+            gen_random_uuid(),
+            ${parseFloat(longitude)},
+            ${parseFloat(latitude)},
+            ${address},
+            NOW(),
+            ${user.user_id},
+            NOW(),
+            NOW()
+          )
+          RETURNING "id"
+        `;
+        
+        // Get the location ID from the result
+        if (Array.isArray(locationResult) && locationResult.length > 0) {
+          locationId = locationResult[0].id;
+        }
+      } catch (error) {
+        console.error('Error creating location:', error);
+      }
+    }
+
+    // Insert the report using raw SQL
+    const reportResult = await prisma.$queryRaw`
       INSERT INTO "Report" (
-        "id", 
-        "description", 
-        "category", 
-        "status", 
+        "id",
+        "description",
+        "category",
+        "status",
         "imagePath",
-        "createdAt", 
-        "updatedAt", 
+        "locationId",
+        "createdAt",
+        "updatedAt",
         "userId"
       )
       VALUES (
-        gen_random_uuid(), 
-        ${description}, 
-        ${category}, 
-        'pending', 
-        ${imagePath}, 
-        NOW(), 
-        NOW(), 
+        gen_random_uuid(),
+        ${description},
+        ${category},
+        'pending',
+        ${imagePath},
+        ${locationId},
+        NOW(),
+        NOW(),
         ${user.user_id}
       )
       RETURNING *
@@ -125,7 +169,7 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     return {
       success: true,
       message: 'Report created successfully',
-      data: result,
+      data: reportResult,
     };
   } catch (error) {
     console.error('Error creating report:', error);
