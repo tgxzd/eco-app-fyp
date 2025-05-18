@@ -3,8 +3,9 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import NavHeader from "@/components/ui/nav-header";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useCallback } from "react";
 import { createReport } from "./action";
+import Webcam from "react-webcam";
 
 export default function CreateReport() {
   const router = useRouter();
@@ -12,6 +13,9 @@ export default function CreateReport() {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
+  const [showWebcam, setShowWebcam] = useState(false);
+  const webcamRef = useRef<Webcam>(null);
 
   const categories = [
     { id: "air-pollution", name: "Air Pollution", image: "/images/air-pollution.png" },
@@ -26,7 +30,31 @@ export default function CreateReport() {
 
   const handleBack = () => {
     setSelectedCategory(null);
+    setImage(null);
+    setShowWebcam(false);
   };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setImage(event.target.result as string);
+          setShowWebcam(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCapture = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setImage(imageSrc);
+      setShowWebcam(false);
+    }
+  }, [webcamRef]);
 
   const handleSubmit = async (formData: FormData) => {
     setMessage("");
@@ -35,6 +63,13 @@ export default function CreateReport() {
     
     // Add the selected category to the form data
     formData.append("category", selectedCategory);
+    
+    // Add the image if available
+    if (image) {
+      // Convert base64 to blob
+      const blob = await fetch(image).then(res => res.blob());
+      formData.append("image", blob, "report-image.jpg");
+    }
     
     startTransition(async () => {
       try {
@@ -47,6 +82,8 @@ export default function CreateReport() {
           const form = document.getElementById("report-form") as HTMLFormElement;
           form?.reset();
           setSelectedCategory(null);
+          setImage(null);
+          setShowWebcam(false);
         } else {
           setMessageType("error");
           setMessage(result.message);
@@ -136,6 +173,87 @@ export default function CreateReport() {
               </h2>
               
               <form action={handleSubmit} id="report-form">
+                {/* Image Capture/Upload Section */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
+                    Add Image Evidence
+                  </label>
+                  
+                  {showWebcam ? (
+                    <div className="mb-4">
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef}
+                        screenshotFormat="image/jpeg"
+                        className="w-full border-2 border-amber-700/50"
+                        videoConstraints={{
+                          facingMode: "environment"
+                        }}
+                      />
+                      <div className="flex justify-center mt-2">
+                        <button
+                          type="button"
+                          onClick={handleCapture}
+                          className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
+                        >
+                          Capture Photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowWebcam(false)}
+                          className="px-4 py-2 bg-black/60 text-amber-100 font-serif ml-2"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : image ? (
+                    <div className="mb-4">
+                      <div className="relative w-full h-64 border-2 border-amber-700/50">
+                        <Image
+                          src={image}
+                          alt="Report evidence"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="flex justify-center mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setImage(null)}
+                          className="px-4 py-2 bg-black/60 text-amber-100 font-serif"
+                        >
+                          Remove Image
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center mb-4">
+                      <div className="border-2 border-dashed border-amber-700/50 p-8 w-full flex flex-col items-center">
+                        <p className="text-amber-100 font-serif mb-4">Upload an image or take a photo</p>
+                        <div className="flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setShowWebcam(true)}
+                            className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
+                          >
+                            Open Camera
+                          </button>
+                          <label className="px-4 py-2 bg-amber-700 text-amber-100 font-serif cursor-pointer">
+                            Upload Image
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <div className="mb-6">
                   <label htmlFor="description" className="block text-sm font-medium text-amber-100 font-serif mb-2">
                     Description
