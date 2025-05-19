@@ -15,6 +15,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   reports   Report[]
+  locations Location[]
 }
 
 model Report {
@@ -27,4 +28,19 @@ model Report {
   updatedAt   DateTime @updatedAt
   userId      String
   user        User     @relation(fields: [userId], references: [user_id])
+  locationId  String?
+  location    Location? @relation(fields: [locationId], references: [id])
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  latitude  Float
+  longitude Float
+  address   String?
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [user_id])
+  reports   Report[]
 }

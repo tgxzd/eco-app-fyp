@@ -1,14 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import NavHeader from "@/components/ui/nav-header";
-import { useState, useTransition, useRef, useCallback } from "react";
+import { useState, useTransition, useRef, useCallback, useEffect } from "react";
 import { createReport } from "./action";
 import Webcam from "react-webcam";
 
 export default function CreateReport() {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
@@ -16,6 +14,8 @@ export default function CreateReport() {
   const [image, setImage] = useState<string | null>(null);
   const [showWebcam, setShowWebcam] = useState(false);
   const webcamRef = useRef<Webcam>(null);
+  const [location, setLocation] = useState<{latitude: number; longitude: number; address: string} | null>(null);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
 
   const categories = [
     { id: "air-pollution", name: "Air Pollution", image: "/images/air-pollution.png" },
@@ -23,6 +23,83 @@ export default function CreateReport() {
     { id: "global-warming", name: "Global Warming", image: "/images/global-warming.png" },
     { id: "wildfire", name: "Wildfire", image: "/images/wildfire.png" },
   ];
+
+  // Function to get user's location
+  const getUserLocation = useCallback(() => {
+    setIsLoadingLocation(true);
+    setMessage("");
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          // Attempt to get address using reverse geocoding
+          try {
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              const address = data.results[0]?.formatted_address || "Unknown location";
+              
+              setLocation({
+                latitude,
+                longitude,
+                address
+              });
+            } else {
+              setLocation({
+                latitude,
+                longitude,
+                address: "Unknown location"
+              });
+            }
+          } catch {
+            // If geocoding fails, just use coordinates
+            setLocation({
+              latitude,
+              longitude,
+              address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+            });
+          }
+          
+          setIsLoadingLocation(false);
+        },
+        (error) => {
+          setIsLoadingLocation(false);
+          setMessageType("error");
+          
+          let errorMsg = "Unable to retrieve your location";
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = "Location access denied. Please enable location services to continue.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = "Location information is unavailable.";
+              break;
+            case error.TIMEOUT:
+              errorMsg = "Location request timed out.";
+              break;
+          }
+          
+          setMessage(errorMsg);
+        }
+      );
+    } else {
+      setIsLoadingLocation(false);
+      setMessageType("error");
+      setMessage("Geolocation is not supported by your browser");
+    }
+  }, []);
+
+  // Get location when component mounts if browser supports geolocation
+  useEffect(() => {
+    if (navigator.geolocation) {
+      getUserLocation();
+    }
+  }, [getUserLocation]);
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -64,6 +141,13 @@ export default function CreateReport() {
     // Add the selected category to the form data
     formData.append("category", selectedCategory);
     
+    // Add location data if available
+    if (location) {
+      formData.append("latitude", location.latitude.toString());
+      formData.append("longitude", location.longitude.toString());
+      formData.append("address", location.address);
+    }
+    
     // Add the image if available
     if (image) {
       // Convert base64 to blob
@@ -88,10 +172,9 @@ export default function CreateReport() {
           setMessageType("error");
           setMessage(result.message);
         }
-      } catch (error) {
+      } catch {
         setMessageType("error");
         setMessage("An error occurred while creating the report.");
-        console.error(error);
       }
     });
   };
@@ -173,6 +256,36 @@ export default function CreateReport() {
               </h2>
               
               <form action={handleSubmit} id="report-form">
+                {/* Location Information Section */}
+                <div className="mb-6">
+                  <div className="bg-black/30 border border-amber-700/50 p-4 rounded">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-amber-100 font-serif">Location Information</h3>
+                      <button
+                        type="button"
+                        onClick={getUserLocation}
+                        className="px-3 py-1 bg-amber-700/70 text-amber-100 font-serif text-sm hover:bg-amber-700 transition-colors"
+                        disabled={isLoadingLocation}
+                      >
+                        {isLoadingLocation ? "Getting location..." : "Refresh Location"}
+                      </button>
+                    </div>
+                    
+                    {location ? (
+                      <div className="text-amber-100 font-serif">
+                        <p className="mb-1"><span className="text-amber-400">Address:</span> {location.address}</p>
+                        <p className="text-xs">
+                          <span className="text-amber-400">Coordinates:</span> {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-amber-100/70 font-serif italic">
+                        {isLoadingLocation ? "Getting your location..." : "Location information not available"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
                 {/* Image Capture/Upload Section */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
@@ -180,52 +293,53 @@ export default function CreateReport() {
                   </label>
                   
                   {showWebcam ? (
-                    <div className="mb-4">
+                    <div className="border-2 border-amber-700/50">
                       <Webcam
                         audio={false}
-                        ref={webcamRef}
+                        height={400}
                         screenshotFormat="image/jpeg"
-                        className="w-full border-2 border-amber-700/50"
+                        width="100%"
                         videoConstraints={{
+                          width: 640,
+                          height: 480,
                           facingMode: "environment"
                         }}
+                        ref={webcamRef}
+                        className="w-full"
                       />
-                      <div className="flex justify-center mt-2">
+                      <div className="flex justify-between p-4 bg-black/70">
+                        <button
+                          type="button"
+                          onClick={() => setShowWebcam(false)}
+                          className="px-4 py-2 bg-gray-800 text-amber-100 font-serif"
+                        >
+                          Cancel
+                        </button>
                         <button
                           type="button"
                           onClick={handleCapture}
                           className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
                         >
-                          Capture Photo
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowWebcam(false)}
-                          className="px-4 py-2 bg-black/60 text-amber-100 font-serif ml-2"
-                        >
-                          Cancel
+                          Capture
                         </button>
                       </div>
                     </div>
                   ) : image ? (
-                    <div className="mb-4">
-                      <div className="relative w-full h-64 border-2 border-amber-700/50">
-                        <Image
-                          src={image}
-                          alt="Report evidence"
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="flex justify-center mt-2">
-                        <button
-                          type="button"
-                          onClick={() => setImage(null)}
-                          className="px-4 py-2 bg-black/60 text-amber-100 font-serif"
-                        >
-                          Remove Image
-                        </button>
-                      </div>
+                    <div className="relative border-2 border-amber-700/50">
+                      <Image 
+                        src={image} 
+                        alt="Report evidence" 
+                        width={500} 
+                        height={300}
+                        className="w-full h-auto max-h-[400px] object-contain bg-black/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setImage(null)}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-amber-100 flex items-center justify-center hover:bg-black/80"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center mb-4">
@@ -268,12 +382,14 @@ export default function CreateReport() {
                   />
                 </div>
                 
-                {/* Hidden field for category */}
-                <input 
-                  type="hidden" 
-                  name="category" 
-                  value={selectedCategory || ""} 
-                />
+                {/* Hidden fields for location data */}
+                {location && (
+                  <>
+                    <input type="hidden" name="latitude" value={location.latitude} />
+                    <input type="hidden" name="longitude" value={location.longitude} />
+                    <input type="hidden" name="address" value={location.address} />
+                  </>
+                )}
                 
                 <button
                   type="submit"

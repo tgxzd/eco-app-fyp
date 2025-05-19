@@ -1,5 +1,5 @@
 import { requireAuth } from '@/lib/session';
-import { redirect } from 'next/navigation';
+// import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import NavHeader from '@/components/ui/nav-header';
 import Link from 'next/link';
@@ -7,10 +7,10 @@ import MapWrapper from '@/components/MapWrapper';
 
 export default async function DashboardPage() {
   // Ensure user is authenticated
-  const user = await requireAuth();
+  await requireAuth();
   
   // Get Google Maps API key from env
-  const mapsApiKey = process.env.MAPS_API || '';
+  const mapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
   return (
     <div className="relative min-h-screen bg-[#121212]">

@@ -1,15 +1,99 @@
+/// <reference types="@types/google.maps" />
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
 interface GoogleMapProps {
   apiKey: string;
 }
 
+interface ReportLocation {
+  id: string;
+  description: string;
+  category: string;
+  status: string;
+  location: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    address: string | null;
+  } | null;
+}
+
 export default function GoogleMap({ apiKey }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInitialized = useRef(false);
+  const [reportLocations, setReportLocations] = useState<ReportLocation[]>([]);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  
+  // Use the API key directly from environment variables if provided
+  const googleMapsApiKey = apiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  
+  // Fetch report locations
+  useEffect(() => {
+    async function fetchReportLocations() {
+      try {
+        const response = await fetch('/api/reports');
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          setReportLocations(data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch report locations:', error);
+      }
+    }
+    
+    fetchReportLocations();
+  }, []);
+
+  // Add report location markers
+  useEffect(() => {
+    if (reportLocations.length > 0 && mapInstanceRef.current && window.google) {
+      reportLocations.forEach(report => {
+        if (report.location) {
+          // Create alert pin for report location
+          const reportPosition = {
+            lat: report.location.latitude,
+            lng: report.location.longitude
+          };
+
+          // Create the marker
+          const marker = new google.maps.Marker({
+            position: reportPosition,
+            map: mapInstanceRef.current,
+            title: `Report: ${report.category}`,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: "#FF0000", // Red alert color
+              fillOpacity: 0.7,
+              strokeWeight: 2,
+              strokeColor: "#FFFFFF", // White border
+            },
+            animation: google.maps.Animation.DROP,
+          });
+
+          // Add info window with report details
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+              <div style="padding: 8px; max-width: 200px;">
+                <h3 style="margin: 0 0 8px; color: #FF0000; font-weight: bold;">${report.category}</h3>
+                <p style="margin: 0 0 8px;">${report.description}</p>
+                <p style="margin: 0; font-style: italic; font-size: 12px;">Status: ${report.status}</p>
+              </div>
+            `
+          });
+
+          // Add click listener to open info window
+          marker.addListener('click', () => {
+            infoWindow.open(mapInstanceRef.current, marker);
+          });
+        }
+      });
+    }
+  }, [reportLocations]);
   
   // Initialize map after component mounts
   useEffect(() => {
@@ -114,6 +198,9 @@ export default function GoogleMap({ apiKey }: GoogleMapProps) {
         ]
       });
       
+      // Store map instance in ref for later use
+      mapInstanceRef.current = map;
+      
       // Try to get user's location
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -161,7 +248,7 @@ export default function GoogleMap({ apiKey }: GoogleMapProps) {
   return (
     <>
       <Script
-        src={`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`}
+        src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places&callback=initMap`}
         strategy="afterInteractive"
       />
       <div 

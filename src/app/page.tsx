@@ -31,7 +31,7 @@ export default function Home() {
         </div>
         
         <p className="mt-6 text-lg text-amber-100 font-serif italic max-w-2xl text-center border-l-2 border-r-2 border-amber-700/30 px-6 py-2">
-          "The Future of Environmental Awareness is in Your Pocket"
+          &quot;The Future of Environmental Awareness is in Your Pocket&quot;
         </p>
         
         <div className="mt-12 flex flex-col sm:flex-row gap-6">

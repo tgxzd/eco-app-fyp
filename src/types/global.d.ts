@@ -1,6 +1,6 @@
 interface Window {
   google: {
-    maps: any;
+    maps: typeof google.maps;
   };
   initMap: () => void;
 } 

@@ -3,12 +3,23 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/session';
-import { v4 as uuidv4 } from 'uuid';
+
+export type Report = {
+  id: string;
+  description: string;
+  category: string;
+  status: string;
+  imagePath?: string | null;
+  userId: string;
+  locationId?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type CreateReportResponse = {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Report;
 };
 
 export async function createReport(formData: FormData): Promise<CreateReportResponse> {
@@ -22,10 +33,29 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
       };
     }
 
+    console.log("User ID:", user.user_id); // Debug log to verify user ID
+    
+    // Check if user exists in database
+    const dbUser = await prisma.user.findUnique({
+      where: { user_id: user.user_id }
+    });
+    
+    if (!dbUser) {
+      return {
+        success: false,
+        message: 'User not found in database',
+      };
+    }
+
     // Extract data from form
     const description = formData.get('description') as string;
     const category = formData.get('category') as string;
     const imageFile = formData.get('image') as File;
+    
+    // Extract location data
+    const latitude = formData.get('latitude') as string;
+    const longitude = formData.get('longitude') as string;
+    const address = formData.get('address') as string;
 
     // Validate input
     if (!description || !category) {
@@ -40,83 +70,95 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     // Process image if uploaded
     if (imageFile && imageFile.size > 0) {
       try {
-        // Convert image to buffer
+        // Convert image to buffer for Pinata upload
         const buffer = Buffer.from(await imageFile.arrayBuffer());
         
-        // Create form data for Pinata's REST API
-        const pinataFormData = new FormData();
+        // Create form data for Pinata upload
+        const pinataForm = new FormData();
+        const filename = `report-${category}-${Date.now()}.jpg`;
         
-        // Add the file directly from buffer
-        const blob = new Blob([buffer]);
-        pinataFormData.append('file', new File([blob], `${uuidv4()}.jpg`, { type: 'image/jpeg' }));
+        // Add file to form
+        const blob = new Blob([buffer], { type: 'image/jpeg' });
+        pinataForm.append('file', new File([blob], filename, { type: 'image/jpeg' }));
         
         // Add metadata
-        const metadata = JSON.stringify({
-          name: `report-${category}-${Date.now()}`,
+        pinataForm.append('pinataMetadata', JSON.stringify({
+          name: filename,
           keyvalues: {
             userId: user.user_id,
             category: category
           }
-        });
-        pinataFormData.append('pinataMetadata', metadata);
-        
-        // Add options
-        pinataFormData.append('pinataOptions', JSON.stringify({
-          cidVersion: 1
         }));
         
-        // Upload directly to Pinata's API
+        // Upload to Pinata
+        console.log("Uploading to Pinata with JWT:", process.env.PINATA_JWT?.substring(0, 20) + "...");
+        
         const response = await fetch('https://api.pinata.cloud/pinning/pinFileToIPFS', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${process.env.PINATA_JWT}`
           },
-          body: pinataFormData
+          body: pinataForm
         });
         
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(`Pinata API error: ${errorData.error || response.statusText}`);
+          console.error("Pinata API error:", errorData);
+          throw new Error(`Pinata API error: ${JSON.stringify(errorData)}`);
         }
         
         const result = await response.json();
+        console.log("Pinata upload result:", result);
         
-        // Set the IPFS hash as the image path
-        imagePath = `ipfs://${result.IpfsHash}`;
+        // Set image path with IPFS hash using Pinata gateway URL
+        const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL || 'tan-worthy-ladybug-708.mypinata.cloud';
+        imagePath = `https://${gatewayUrl}/ipfs/${result.IpfsHash}`;
+        console.log("Image saved with path:", imagePath);
       } catch (error) {
         console.error('Error uploading to IPFS:', error);
-        return {
-          success: false,
-          message: 'Failed to upload image to IPFS',
-        };
+        // Continue with report creation even if image upload fails
+        // Just log the error and proceed without an image
       }
     }
 
-    // Insert the report using raw SQL query
-    // This is a workaround for Prisma client generation issues
-    const result = await prisma.$queryRaw`
-      INSERT INTO "Report" (
-        "id", 
-        "description", 
-        "category", 
-        "status", 
-        "imagePath",
-        "createdAt", 
-        "updatedAt", 
-        "userId"
-      )
-      VALUES (
-        gen_random_uuid(), 
-        ${description}, 
-        ${category}, 
-        'pending', 
-        ${imagePath}, 
-        NOW(), 
-        NOW(), 
-        ${user.user_id}
-      )
-      RETURNING *
-    `;
+    // Create location record if latitude/longitude provided
+    let locationId = null;
+    if (latitude && longitude) {
+      try {
+        console.log("Creating location for user:", user.user_id);
+        
+        // Create location record using Prisma model API
+        const location = await prisma.location.create({
+          data: {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            address: address || "",
+            userId: user.user_id
+          }
+        });
+        
+        locationId = location.id;
+        console.log("Location created with ID:", locationId);
+      } catch (error) {
+        console.error("Error creating location record:", error);
+        // Continue with report creation even if location storage fails
+      }
+    }
+
+    // Create the report using Prisma model API
+    console.log("Creating report for user:", user.user_id);
+    const report = await prisma.report.create({
+      data: {
+        description,
+        category,
+        status: 'pending',
+        imagePath,
+        userId: user.user_id,
+        locationId
+      }
+    });
+    
+    console.log("Report created with ID:", report.id);
 
     // Revalidate the report page
     revalidatePath('/create-report');
@@ -125,13 +167,13 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     return {
       success: true,
       message: 'Report created successfully',
-      data: result,
+      data: report,
     };
   } catch (error) {
     console.error('Error creating report:', error);
     return {
       success: false,
-      message: 'Failed to create report',
+      message: 'Failed to create report: ' + (error instanceof Error ? error.message : String(error)),
     };
   }
 } 
