@@ -1,7 +1,6 @@
 "use client";
 
-import { LocationPicker as LocationPickerComponent } from './GoogleMap';
-import { GoogleMapsProvider } from './GoogleMap';
+import { LocationPicker as LocationPickerComponent, GoogleMapsProvider } from './GoogleMapsComponents';
 
 interface LocationPickerProps {
   onLocationSelect: (location: {

@@ -22,9 +22,8 @@ export default function MapWrapper({ apiKey, reportLocations = [] }: MapWrapperP
   return (
     <div className="bg-black/40 p-4 border border-amber-700/50">
       <h2 className="text-amber-100 font-serif text-xl mb-4 tracking-wide text-center">Location Map</h2>
-<<<<<<< HEAD
       <div className="relative">
-        <GoogleMap apiKey={apiKey} />
+        <GoogleMap apiKey={apiKey} reportLocations={reportLocations} />
         
         {/* Map Legend */}
         <div className="absolute bottom-4 right-4 bg-black/70 p-3 border border-amber-700/50 rounded text-sm">
@@ -41,9 +40,6 @@ export default function MapWrapper({ apiKey, reportLocations = [] }: MapWrapperP
           </ul>
         </div>
       </div>
-=======
-      <GoogleMap reportLocations={reportLocations} />
->>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
     </div>
   );
 } 
