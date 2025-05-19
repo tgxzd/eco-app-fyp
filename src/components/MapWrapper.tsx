@@ -1,25 +1,28 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import GoogleMap from './GoogleMap';
 
-// Import GoogleMap component with client-side only rendering
-const GoogleMap = dynamic(() => import('@/components/GoogleMap'), { 
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[400px] bg-gray-800/60 border border-amber-700/30 flex items-center justify-center">
-      <div className="text-amber-100">Loading map...</div>
-    </div>
-  )
-});
+export interface ReportLocation {
+  report_id: string;
+  category: string;
+  status: string;
+  description: string;
+  location_id: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+}
 
 interface MapWrapperProps {
   apiKey: string;
+  reportLocations?: ReportLocation[];
 }
 
-export default function MapWrapper({ apiKey }: MapWrapperProps) {
+export default function MapWrapper({ apiKey, reportLocations = [] }: MapWrapperProps) {
   return (
     <div className="bg-black/40 p-4 border border-amber-700/50">
       <h2 className="text-amber-100 font-serif text-xl mb-4 tracking-wide text-center">Location Map</h2>
+<<<<<<< HEAD
       <div className="relative">
         <GoogleMap apiKey={apiKey} />
         
@@ -38,6 +41,9 @@ export default function MapWrapper({ apiKey }: MapWrapperProps) {
           </ul>
         </div>
       </div>
+=======
+      <GoogleMap reportLocations={reportLocations} />
+>>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
     </div>
   );
 } 

@@ -5,6 +5,7 @@ import NavHeader from "@/components/ui/nav-header";
 import { useState, useTransition, useRef, useCallback, useEffect } from "react";
 import { createReport } from "./action";
 import Webcam from "react-webcam";
+import { LocationPicker, GoogleMapsProvider } from '@/components/GoogleMap';
 
 export default function CreateReport() {
   const [isPending, startTransition] = useTransition();
@@ -14,8 +15,19 @@ export default function CreateReport() {
   const [image, setImage] = useState<string | null>(null);
   const [showWebcam, setShowWebcam] = useState(false);
   const webcamRef = useRef<Webcam>(null);
+<<<<<<< HEAD
   const [location, setLocation] = useState<{latitude: number; longitude: number; address: string} | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+=======
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+    address: string;
+  } | null>(null);
+
+  // Google Maps API key
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+>>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
 
   const categories = [
     { id: "air-pollution", name: "Air Pollution", image: "/images/air-pollution.png" },
@@ -109,6 +121,7 @@ export default function CreateReport() {
     setSelectedCategory(null);
     setImage(null);
     setShowWebcam(false);
+    setLocation(null);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +145,14 @@ export default function CreateReport() {
       setShowWebcam(false);
     }
   }, [webcamRef]);
+
+  const handleLocationSelect = (selectedLocation: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  }) => {
+    setLocation(selectedLocation);
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setMessage("");
@@ -168,6 +189,7 @@ export default function CreateReport() {
           setSelectedCategory(null);
           setImage(null);
           setShowWebcam(false);
+          setLocation(null);
         } else {
           setMessageType("error");
           setMessage(result.message);
@@ -256,6 +278,7 @@ export default function CreateReport() {
               </h2>
               
               <form action={handleSubmit} id="report-form">
+<<<<<<< HEAD
                 {/* Location Information Section */}
                 <div className="mb-6">
                   <div className="bg-black/30 border border-amber-700/50 p-4 rounded">
@@ -286,6 +309,18 @@ export default function CreateReport() {
                   </div>
                 </div>
                 
+=======
+                {/* Location Picker Section */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
+                    Your Location
+                  </label>
+                  <GoogleMapsProvider apiKey={googleMapsApiKey}>
+                    <LocationPicker onLocationSelect={handleLocationSelect} />
+                  </GoogleMapsProvider>
+                </div>
+
+>>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
                 {/* Image Capture/Upload Section */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
@@ -320,6 +355,7 @@ export default function CreateReport() {
                           onClick={handleCapture}
                           className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
                         >
+<<<<<<< HEAD
                           Capture
                         </button>
                       </div>
@@ -340,34 +376,64 @@ export default function CreateReport() {
                       >
                         ✕
                       </button>
+=======
+                          Capture Photo
+                        </button>
+                      </div>
+>>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center mb-4">
-                      <div className="border-2 border-dashed border-amber-700/50 p-8 w-full flex flex-col items-center">
-                        <p className="text-amber-100 font-serif mb-4">Upload an image or take a photo</p>
-                        <div className="flex gap-4">
+                    <div>
+                      {image ? (
+                        <div className="mb-4">
+                          <div className="border-2 border-amber-700/50 overflow-hidden">
+                            <img 
+                              src={image} 
+                              alt="Captured" 
+                              className="w-full h-auto"
+                            />
+                          </div>
+                          <div className="flex justify-end mt-2">
+                            <button
+                              type="button"
+                              onClick={() => setImage(null)}
+                              className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
+                            >
+                              Remove Photo
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex space-x-4 mb-4">
                           <button
                             type="button"
                             onClick={() => setShowWebcam(true)}
                             className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
                           >
-                            Open Camera
+                            Use Camera
                           </button>
-                          <label className="px-4 py-2 bg-amber-700 text-amber-100 font-serif cursor-pointer">
-                            Upload Image
-                            <input
-                              type="file"
+                          <div>
+                            <label 
+                              htmlFor="image-upload" 
+                              className="px-4 py-2 bg-amber-700 text-amber-100 font-serif cursor-pointer"
+                            >
+                              Upload Image
+                            </label>
+                            <input 
+                              type="file" 
+                              id="image-upload"
                               accept="image/*"
                               onChange={handleFileUpload}
                               className="hidden"
                             />
-                          </label>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   )}
                 </div>
-
+                
+                {/* Description Input */}
                 <div className="mb-6">
                   <label htmlFor="description" className="block text-sm font-medium text-amber-100 font-serif mb-2">
                     Description
@@ -375,13 +441,14 @@ export default function CreateReport() {
                   <textarea
                     id="description"
                     name="description"
-                    rows={6}
-                    className="w-full px-4 py-3 bg-black/30 border-0 border-b-2 border-amber-700/70 text-amber-100 placeholder-amber-100/50 focus:border-amber-700 focus:outline-none focus:ring-0 font-serif"
-                    placeholder="Describe the environmental issue in detail..."
+                    rows={5}
                     required
+                    placeholder="Describe the environmental issue you're reporting..."
+                    className="w-full p-2 bg-black/20 border-amber-700/60 border text-amber-100"
                   />
                 </div>
                 
+<<<<<<< HEAD
                 {/* Hidden fields for location data */}
                 {location && (
                   <>
@@ -398,6 +465,19 @@ export default function CreateReport() {
                 >
                   {isPending ? "Creating Report..." : "Create Report"}
                 </button>
+=======
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    className={`px-6 py-3 bg-amber-700 text-amber-100 font-serif text-lg ${
+                      isPending ? 'opacity-70 cursor-not-allowed' : 'hover:bg-amber-600'
+                    }`}
+                  >
+                    {isPending ? 'Submitting...' : 'Submit Report'}
+                  </button>
+                </div>
+>>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
               </form>
             </div>
           )}

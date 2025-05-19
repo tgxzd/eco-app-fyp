@@ -51,11 +51,6 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     const description = formData.get('description') as string;
     const category = formData.get('category') as string;
     const imageFile = formData.get('image') as File;
-    
-    // Extract location data
-    const latitude = formData.get('latitude') as string;
-    const longitude = formData.get('longitude') as string;
-    const address = formData.get('address') as string;
 
     // Validate input
     if (!description || !category) {
@@ -116,49 +111,38 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
         console.log("Image saved with path:", imagePath);
       } catch (error) {
         console.error('Error uploading to IPFS:', error);
-        // Continue with report creation even if image upload fails
-        // Just log the error and proceed without an image
+        return {
+          success: false,
+          message: 'Failed to upload image to IPFS',
+        };
       }
     }
 
-    // Create location record if latitude/longitude provided
-    let locationId = null;
-    if (latitude && longitude) {
-      try {
-        console.log("Creating location for user:", user.user_id);
-        
-        // Create location record using Prisma model API
-        const location = await prisma.location.create({
-          data: {
-            latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude),
-            address: address || "",
-            userId: user.user_id
-          }
-        });
-        
-        locationId = location.id;
-        console.log("Location created with ID:", locationId);
-      } catch (error) {
-        console.error("Error creating location record:", error);
-        // Continue with report creation even if location storage fails
-      }
-    }
-
-    // Create the report using Prisma model API
-    console.log("Creating report for user:", user.user_id);
-    const report = await prisma.report.create({
-      data: {
-        description,
-        category,
-        status: 'pending',
-        imagePath,
-        userId: user.user_id,
-        locationId
-      }
-    });
-    
-    console.log("Report created with ID:", report.id);
+    // Insert the report using raw SQL query
+    // This is a workaround for Prisma client generation issues
+    const result = await prisma.$queryRaw`
+      INSERT INTO "Report" (
+        "id", 
+        "description", 
+        "category", 
+        "status", 
+        "imagePath",
+        "createdAt", 
+        "updatedAt", 
+        "userId"
+      )
+      VALUES (
+        gen_random_uuid(), 
+        ${description}, 
+        ${category}, 
+        'pending', 
+        ${imagePath}, 
+        NOW(), 
+        NOW(), 
+        ${user.user_id}
+      )
+      RETURNING *
+    `;
 
     // Revalidate the report page
     revalidatePath('/create-report');
@@ -167,7 +151,7 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
     return {
       success: true,
       message: 'Report created successfully',
-      data: report,
+      data: result,
     };
   } catch (error) {
     console.error('Error creating report:', error);
