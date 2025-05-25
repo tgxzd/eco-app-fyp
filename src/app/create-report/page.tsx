@@ -5,6 +5,7 @@ import NavHeader from "@/components/ui/nav-header";
 import { useState, useTransition, useRef, useCallback, useEffect } from "react";
 import { createReport } from "./action";
 import Webcam from "react-webcam";
+import { queryFlowiseAI } from '@/lib/flowiseAI';
 
 export default function CreateReport() {
   const [isPending, startTransition] = useTransition();
@@ -16,13 +17,34 @@ export default function CreateReport() {
   const webcamRef = useRef<Webcam>(null);
   const [location, setLocation] = useState<{latitude: number; longitude: number; address: string} | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [userPrompt, setUserPrompt] = useState("");
+  const [showReportForm, setShowReportForm] = useState(false);
 
-  const categories = [
-    { id: "air-pollution", name: "Air Pollution", image: "/images/air-pollution.png" },
-    { id: "water-pollution", name: "Water Pollution", image: "/images/water-pollution.png" },
-    { id: "global-warming", name: "Global Warming", image: "/images/global-warming.png" },
-    { id: "wildfire", name: "Wildfire", image: "/images/wildfire.png" },
-  ];
+  const categoryMap = {
+    'AIR-POLLUTION': 'air-pollution',
+    'WATER-POLLUTION': 'water-pollution',
+    'WILDFIRE': 'wildfire'
+  };
+
+  const categoryDisplayNames = {
+    'air-pollution': 'Air Pollution',
+    'water-pollution': 'Water Pollution',
+    'wildfire': 'Wildfire'
+  };
+
+  const getCategoryColor = (category: string | null) => {
+    switch (category) {
+      case 'air-pollution':
+        return 'from-red-500 to-orange-500';
+      case 'water-pollution':
+        return 'from-blue-500 to-cyan-500';
+      case 'wildfire':
+        return 'from-orange-500 to-red-600';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
 
   // Function to get user's location
   const getUserLocation = useCallback(() => {
@@ -101,14 +123,44 @@ export default function CreateReport() {
     }
   }, [getUserLocation]);
 
-  const handleCategorySelect = (categoryId: string) => {
-    setSelectedCategory(categoryId);
+  const handleAISubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userPrompt.trim() || isProcessingAI) return;
+
+    setIsProcessingAI(true);
+    setMessage("");
+    
+    try {
+      const response = await queryFlowiseAI({ question: userPrompt.trim() });
+      
+      if (response.route === 'REASK') {
+        setMessageType("error");
+        setMessage("Please provide more specific details about the environmental issue.");
+        return;
+      }
+      
+      const mappedCategory = categoryMap[response.route as keyof typeof categoryMap];
+      if (mappedCategory) {
+        setSelectedCategory(mappedCategory);
+        setShowReportForm(true);
+      } else {
+        setMessageType("error");
+        setMessage("Unable to categorize the environmental issue. Please try again with more specific details.");
+      }
+    } catch (error) {
+      setMessageType("error");
+      setMessage("An error occurred while processing your description. Please try again.");
+    } finally {
+      setIsProcessingAI(false);
+    }
   };
 
   const handleBack = () => {
     setSelectedCategory(null);
+    setShowReportForm(false);
     setImage(null);
     setShowWebcam(false);
+    setUserPrompt("");
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,8 +190,9 @@ export default function CreateReport() {
     
     if (!selectedCategory) return;
     
-    // Add the selected category to the form data
+    // Add the selected category and description to the form data
     formData.append("category", selectedCategory);
+    formData.append("description", userPrompt); // Use the AI prompt as description
     
     // Add location data if available
     if (location) {
@@ -163,11 +216,7 @@ export default function CreateReport() {
           setMessageType("success");
           setMessage(result.message);
           // Reset the form and selection
-          const form = document.getElementById("report-form") as HTMLFormElement;
-          form?.reset();
-          setSelectedCategory(null);
-          setImage(null);
-          setShowWebcam(false);
+          handleBack();
         } else {
           setMessageType("error");
           setMessage(result.message);
@@ -214,33 +263,57 @@ export default function CreateReport() {
               <p>{message}</p>
             </div>
           )}
+
+          {/* Show category banner if selected */}
+          {selectedCategory && (
+            <div className="mb-6">
+              <div className={`w-full overflow-hidden rounded-lg shadow-lg`}>
+                <div className={`bg-gradient-to-r ${getCategoryColor(selectedCategory)} p-6 text-white text-center`}>
+                  <h2 className="text-2xl font-bold tracking-wider">
+                    Detected Category:
+                  </h2>
+                  <p className="text-3xl font-bold mt-2">
+                    {categoryDisplayNames[selectedCategory as keyof typeof categoryDisplayNames]}
+                  </p>
+                  {!showReportForm && (
+                    <button
+                      onClick={() => setShowReportForm(true)}
+                      className="mt-4 px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
+                    >
+                      Continue with this category
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
           
-          {!selectedCategory ? (
+          {!showReportForm ? (
             <div className="bg-black/40 border-t-2 border-b-2 border-amber-700/50 p-6 md:p-8">
               <h2 className="font-serif text-xl text-amber-100 mb-6 text-center">
-                Select Environmental Issue Category
+                Describe the Environmental Issue
               </h2>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {categories.map((category) => (
-                  <div 
-                    key={category.id}
-                    onClick={() => handleCategorySelect(category.id)}
-                    className="cursor-pointer transition-transform hover:scale-105"
-                  >
-                    <div className="border-2 border-amber-700/50 overflow-hidden">
-                      <Image
-                        src={category.image}
-                        alt={category.name}
-                        width={200}
-                        height={200}
-                        className="object-cover w-full h-36"
-                      />
-                    </div>
-                    <p className="font-serif text-amber-100 text-center mt-2">{category.name}</p>
-                  </div>
-                ))}
-              </div>
+              <form onSubmit={handleAISubmit}>
+                <div className="mb-6">
+                  <textarea
+                    value={userPrompt}
+                    onChange={(e) => setUserPrompt(e.target.value)}
+                    rows={6}
+                    className="w-full px-4 py-3 bg-black/30 border-0 border-b-2 border-amber-700/70 text-amber-100 placeholder-amber-100/50 focus:border-amber-700 focus:outline-none focus:ring-0 font-serif"
+                    placeholder="Describe what you observe about the environmental issue..."
+                    required
+                  />
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isProcessingAI}
+                  className="w-full px-8 py-3 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest"
+                >
+                  {isProcessingAI ? "Processing..." : "Analyze Description"}
+                </button>
+              </form>
             </div>
           ) : (
             <div className="bg-black/40 border-t-2 border-b-2 border-amber-700/50 p-6 md:p-8">
@@ -248,11 +321,11 @@ export default function CreateReport() {
                 onClick={handleBack}
                 className="mb-4 text-amber-700 font-serif flex items-center hover:text-amber-500 transition-colors"
               >
-                ← Back to Categories
+                ← Back
               </button>
               
               <h2 className="font-serif text-xl text-amber-100 mb-6">
-                Describe the {categories.find(c => c.id === selectedCategory)?.name} Issue
+                Add Details to Your Report
               </h2>
               
               <form action={handleSubmit} id="report-form">
@@ -272,21 +345,20 @@ export default function CreateReport() {
                     </div>
                     
                     {location ? (
-                      <div className="text-amber-100 font-serif">
-                        <p className="mb-1"><span className="text-amber-400">Address:</span> {location.address}</p>
-                        <p className="text-xs">
-                          <span className="text-amber-400">Coordinates:</span> {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                        </p>
+                      <div className="text-amber-100 font-serif text-sm">
+                        <p>Latitude: {location.latitude}</p>
+                        <p>Longitude: {location.longitude}</p>
+                        <p>Address: {location.address}</p>
                       </div>
                     ) : (
-                      <p className="text-amber-100/70 font-serif italic">
-                        {isLoadingLocation ? "Getting your location..." : "Location information not available"}
+                      <p className="text-amber-100/70 font-serif text-sm">
+                        {isLoadingLocation ? "Fetching location..." : "No location data available"}
                       </p>
                     )}
                   </div>
                 </div>
-                
-                {/* Image Capture/Upload Section */}
+
+                {/* Image Upload Section */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
                     Add Image Evidence
@@ -367,29 +439,6 @@ export default function CreateReport() {
                     </div>
                   )}
                 </div>
-
-                <div className="mb-6">
-                  <label htmlFor="description" className="block text-sm font-medium text-amber-100 font-serif mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={6}
-                    className="w-full px-4 py-3 bg-black/30 border-0 border-b-2 border-amber-700/70 text-amber-100 placeholder-amber-100/50 focus:border-amber-700 focus:outline-none focus:ring-0 font-serif"
-                    placeholder="Describe the environmental issue in detail..."
-                    required
-                  />
-                </div>
-                
-                {/* Hidden fields for location data */}
-                {location && (
-                  <>
-                    <input type="hidden" name="latitude" value={location.latitude} />
-                    <input type="hidden" name="longitude" value={location.longitude} />
-                    <input type="hidden" name="address" value={location.address} />
-                  </>
-                )}
                 
                 <button
                   type="submit"

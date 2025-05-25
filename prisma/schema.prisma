@@ -27,36 +27,20 @@ model Report {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   userId      String
-<<<<<<< HEAD
-  user        User     @relation(fields: [userId], references: [user_id])
-=======
   user        User      @relation(fields: [userId], references: [user_id])
->>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
   locationId  String?
   location    Location? @relation(fields: [locationId], references: [id])
 }
 
 model Location {
-<<<<<<< HEAD
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   latitude  Float
   longitude Float
   address   String?
-  timestamp DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  user      User     @relation(fields: [userId], references: [user_id])
-=======
-  id        String    @id @default(uuid())
-  longitude Float
-  latitude  Float
-  address   String
   timestamp DateTime  @default(now())
   userId    String
   user      User      @relation(fields: [userId], references: [user_id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
->>>>>>> 528656db88427d52c631000ff602942ad1a25b4f
   reports   Report[]
 }
