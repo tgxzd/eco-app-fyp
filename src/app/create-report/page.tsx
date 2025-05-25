@@ -46,6 +46,19 @@ export default function CreateReport() {
     }
   };
 
+  const getCategoryIcon = (category: string | null) => {
+    switch (category) {
+      case 'air-pollution':
+        return '🌫️';
+      case 'water-pollution':
+        return '💧';
+      case 'wildfire':
+        return '🔥';
+      default:
+        return '❓';
+    }
+  };
+
   // Function to get user's location
   const getUserLocation = useCallback(() => {
     setIsLoadingLocation(true);
@@ -267,22 +280,26 @@ export default function CreateReport() {
           {/* Show category banner if selected */}
           {selectedCategory && (
             <div className="mb-6">
-              <div className={`w-full overflow-hidden rounded-lg shadow-lg`}>
-                <div className={`bg-gradient-to-r ${getCategoryColor(selectedCategory)} p-6 text-white text-center`}>
-                  <h2 className="text-2xl font-bold tracking-wider">
-                    Detected Category:
-                  </h2>
-                  <p className="text-3xl font-bold mt-2">
-                    {categoryDisplayNames[selectedCategory as keyof typeof categoryDisplayNames]}
-                  </p>
-                  {!showReportForm && (
-                    <button
-                      onClick={() => setShowReportForm(true)}
-                      className="mt-4 px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors"
-                    >
-                      Continue with this category
-                    </button>
-                  )}
+              <div className="w-full overflow-hidden rounded-lg border-2 border-amber-700/50">
+                <div className="bg-black/40 p-8 text-center">
+                  <div className="text-[100px] mb-4 animate-fade-in">
+                    {getCategoryIcon(selectedCategory)}
+                  </div>
+                  <div className="font-serif text-amber-100">
+                    <p className="text-lg uppercase tracking-widest mb-2">Detected Category</p>
+                    <h2 className="text-4xl font-bold mb-4 text-amber-500">
+                      {categoryDisplayNames[selectedCategory as keyof typeof categoryDisplayNames]}
+                    </h2>
+                    <div className="w-24 h-1 bg-amber-700 mx-auto mb-4"></div>
+                    {!showReportForm && (
+                      <button
+                        onClick={() => setShowReportForm(true)}
+                        className="mt-2 px-8 py-3 border-2 border-amber-700 text-amber-100 hover:bg-amber-700/20 transition-all duration-300 uppercase tracking-widest font-serif"
+                      >
+                        Continue with this category
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
