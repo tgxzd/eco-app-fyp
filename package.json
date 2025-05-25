@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@pinata/sdk": "^2.1.0",
-    "@prisma/client": "^6.6.0",
+    "@prisma/client": "^6.8.2",
     "@react-google-maps/api": "^2.20.6",
     "@types/uuid": "^10.0.0",
     "axios": "^1.9.0",
@@ -22,7 +22,7 @@
     "lucide-react": "^0.503.0",
     "next": "15.3.0",
     "pinata": "^2.3.0",
-    "prisma": "^6.6.0",
+    "prisma": "^6.8.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-webcam": "^7.2.0",
