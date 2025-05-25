@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    // Fetch all reports that have locations
+    // Fetch all reports that have locations with all necessary details
     const reportsWithLocations = await prisma.report.findMany({
       where: {
         locationId: {
@@ -12,6 +12,9 @@ export async function GET() {
       },
       include: {
         location: true
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     });
 

@@ -104,7 +104,7 @@ function NavHeader() {
           className="flex items-center"
           onMouseLeave={() => setPosition((pv) => ({ ...pv, opacity: 0 }))}
         >
-          <Tab setPosition={setPosition} href="/dashboard">Home</Tab>
+          <Tab setPosition={setPosition} href="/dashboard">Dashboard</Tab>
           <div className="text-amber-700 self-center mx-1">•</div>
           <Tab setPosition={setPosition} href="/your-report">Your Report</Tab>
           <div className="text-amber-700 self-center mx-1">•</div>

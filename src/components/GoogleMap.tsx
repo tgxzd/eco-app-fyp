@@ -6,18 +6,32 @@ import { ReportLocation } from './MapWrapper';
 
 // Interface for the raw data from /api/reports
 interface ApiReportData {
-  id: string; // Assuming 'id' is the primary key for Report model
+  id: string;
   category: string;
   status: string;
   description: string;
+  imagePath: string | null;
+  createdAt: string;
   locationId: string | null;
   location: {
-    id: string; // Assuming 'id' is the primary key for Location model
+    id: string;
     latitude: number;
     longitude: number;
     address: string | null;
   } | null;
-  // Add other fields from your Report model if necessary
+}
+
+interface ReportLocation {
+  report_id: string;
+  category: string;
+  status: string;
+  description: string;
+  location_id: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  imagePath: string | null;
+  createdAt: string;
 }
 
 interface GoogleMapProps {
@@ -28,135 +42,25 @@ interface GoogleMapProps {
 export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInitialized = useRef(false);
-  // This state will hold the flattened ReportLocation data ready for markers
+  const [isMapReady, setIsMapReady] = useState(false);
   const [processedReportLocations, setProcessedReportLocations] = useState<ReportLocation[]>([]);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   
-  // Use the API key directly from environment variables if provided
   const googleMapsApiKey = apiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-  
-  // Fetch report locations if none provided as props
-  useEffect(() => {
-    if (reportLocations.length > 0) {
-      // If props are provided, assume they are already in the correct flattened format
-      const validReportsFromProps = reportLocations.filter((report: ReportLocation) =>
-        report &&
-        typeof report === 'object' &&
-        Object.keys(report).length > 0 &&
-        typeof report.latitude === 'number' && // Check type directly
-        typeof report.longitude === 'number'
-      );
-      setProcessedReportLocations(validReportsFromProps);
-      return;
-    }
 
-    async function fetchAndProcessReportLocations() {
-      try {
-        const response = await fetch('/api/reports');
-        const apiResponse = await response.json();
-
-        if (apiResponse.success && Array.isArray(apiResponse.data)) {
-          const rawReports: ApiReportData[] = apiResponse.data;
-
-          const validAndFlattenedReports = rawReports
-            .filter((report: ApiReportData) =>
-              report &&
-              typeof report === 'object' &&
-              report.location && // Ensure location object exists
-              typeof report.location.latitude === 'number' &&
-              typeof report.location.longitude === 'number'
-            )
-            .map((report: ApiReportData): ReportLocation => ({
-              report_id: report.id, // Map 'id' to 'report_id'
-              category: report.category,
-              status: report.status,
-              description: report.description,
-              location_id: report.locationId || '', // Handle potential null
-              latitude: report.location!.latitude, // location is checked above
-              longitude: report.location!.longitude, // location is checked above
-              address: report.location!.address || 'Address not available', // Handle potential null
-            }));
-          setProcessedReportLocations(validAndFlattenedReports);
-        } else {
-          console.error('API response for reports was not successful or data is not an array:', apiResponse);
-          setProcessedReportLocations([]);
-        }
-      } catch (error) {
-        console.error('Failed to fetch or process report locations:', error);
-        setProcessedReportLocations([]);
-      }
-    }
-
-    fetchAndProcessReportLocations();
-  }, [reportLocations]);
-
-  // Add report location markers
-  useEffect(() => {
-    if (processedReportLocations.length > 0 && mapInstanceRef.current && window.google) {
-      // Clear any existing markers if necessary (e.g. by keeping a list of markers and calling setMap(null) on them)
-      // For simplicity here, we're not clearing, assuming markers are added once.
-      // mapInstanceRef.current.setOptions({ clickableIcons: false }); // This was for something else
-
-      processedReportLocations.forEach(report => {
-        // The data in processedReportLocations is already validated and flattened
-        const reportPosition = {
-          lat: Number(report.latitude), // Already number, but Number() is safe
-          lng: Number(report.longitude) // Already number, but Number() is safe
-        };
-
-        console.log('Attempting to create marker for:', report.report_id, 'at', reportPosition);
-
-        const marker = new google.maps.Marker({
-          position: reportPosition,
-          map: mapInstanceRef.current,
-          title: `Report: ${report.category}`,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: "#FF0000",
-            fillOpacity: 0.7,
-            strokeWeight: 2,
-            strokeColor: "#FFFFFF",
-          },
-          animation: google.maps.Animation.DROP,
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div style="padding: 8px; max-width: 200px;">
-              <h3 style="margin: 0 0 8px; color: #FF0000; font-weight: bold;">${report.category}</h3>
-              <p style="margin: 0 0 8px;">${report.description}</p>
-              <p style="margin: 0; font-style: italic; font-size: 12px;">Status: ${report.status}</p>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(mapInstanceRef.current, marker);
-        });
-      });
-    }
-  }, [processedReportLocations, mapInstanceRef.current]); // Rerun when processed locations change or map is ready
-  
   // Initialize map after component mounts
   useEffect(() => {
     if (mapInitialized.current || !window.google || !window.google.maps || !mapRef.current) {
-      // If already initialized or google maps not ready or mapRef not ready, do nothing
-      if (!window.google || !window.google.maps) {
-          // console.log("Google Maps API not ready yet for initMap");
-      }
       return;
     }
     
     const initMap = () => {
       if (!window.google || !window.google.maps || !mapRef.current) {
-        // console.log("initMap called but dependencies not ready");
-        return; // Redundant check, but safe
+        return;
       }
       
-      if (mapInitialized.current) return; // Prevent re-initialization
+      if (mapInitialized.current) return;
       mapInitialized.current = true;
-      // console.log("Initializing map...");
       
       const defaultLocation = { lat: 3.1390, lng: 101.6869 };
       
@@ -187,7 +91,6 @@ export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapPro
       });
       
       mapInstanceRef.current = map;
-      // console.log("Map instance created and stored in ref.");
       
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -216,25 +119,157 @@ export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapPro
           }
         );
       }
+      
+      // Signal that the map is ready
+      setIsMapReady(true);
     };
     
     if (window.google && window.google.maps) {
-      // console.log("Google Maps API already loaded, calling initMap directly.");
       initMap();
     } else {
-      // console.log("Google Maps API not loaded yet, setting window.initMap callback.");
-      window.initMap = initMap; // This is for the <Script> callback
+      window.initMap = initMap;
     }
-    // Adding dependencies that should trigger re-initialization IF they change,
-    // though for map init this usually runs once.
-  }, [googleMapsApiKey]); // apiKey is part of googleMapsApiKey
+  }, [googleMapsApiKey]);
+
+  // Fetch and process report locations
+  useEffect(() => {
+    if (reportLocations.length > 0) {
+      const validReportsFromProps = reportLocations.filter((report: ReportLocation) =>
+        report &&
+        typeof report === 'object' &&
+        Object.keys(report).length > 0 &&
+        typeof report.latitude === 'number' &&
+        typeof report.longitude === 'number'
+      );
+      setProcessedReportLocations(validReportsFromProps);
+      return;
+    }
+
+    async function fetchAndProcessReportLocations() {
+      try {
+        const response = await fetch('/api/reports');
+        const apiResponse = await response.json();
+
+        if (apiResponse.success && Array.isArray(apiResponse.data)) {
+          const rawReports: ApiReportData[] = apiResponse.data;
+          const validAndFlattenedReports = rawReports
+            .filter((report: ApiReportData) =>
+              report &&
+              typeof report === 'object' &&
+              report.location &&
+              typeof report.location.latitude === 'number' &&
+              typeof report.location.longitude === 'number'
+            )
+            .map((report: ApiReportData): ReportLocation => ({
+              report_id: report.id,
+              category: report.category,
+              status: report.status,
+              description: report.description,
+              location_id: report.locationId || '',
+              latitude: report.location!.latitude,
+              longitude: report.location!.longitude,
+              address: report.location!.address || 'Address not available',
+              imagePath: report.imagePath,
+              createdAt: report.createdAt
+            }));
+          setProcessedReportLocations(validAndFlattenedReports);
+        }
+      } catch (error) {
+        console.error('Failed to fetch or process report locations:', error);
+        setProcessedReportLocations([]);
+      }
+    }
+
+    fetchAndProcessReportLocations();
+  }, [reportLocations]);
+
+  // Add markers only when both map and data are ready
+  useEffect(() => {
+    if (!isMapReady || processedReportLocations.length === 0 || !mapInstanceRef.current || !window.google) {
+      return;
+    }
+
+    // Clear existing markers if any
+    const map = mapInstanceRef.current;
+
+    processedReportLocations.forEach(report => {
+      const reportPosition = {
+        lat: Number(report.latitude),
+        lng: Number(report.longitude)
+      };
+
+      const marker = new google.maps.Marker({
+        position: reportPosition,
+        map: map,
+        title: `Report: ${report.category}`,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: "#FF0000",
+          fillOpacity: 0.7,
+          strokeWeight: 2,
+          strokeColor: "#FFFFFF",
+        },
+        animation: google.maps.Animation.DROP,
+      });
+
+      // Format the date
+      const reportDate = new Date(report.createdAt);
+      const formattedDate = reportDate.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Create the info window content with image and details
+      const infoWindowContent = `
+        <div style="padding: 16px; max-width: 300px; font-family: system-ui, sans-serif;">
+          <h3 style="margin: 0 0 12px; color: #FF0000; font-weight: bold; font-size: 18px; text-transform: uppercase;">
+            ${report.category}
+          </h3>
+          ${report.imagePath ? `
+            <div style="margin-bottom: 12px;">
+              <img src="${report.imagePath}" alt="Report evidence" style="width: 100%; height: auto; border-radius: 4px; border: 2px solid rgba(180, 83, 9, 0.5);">
+            </div>
+          ` : ''}
+          <div style="margin-bottom: 12px;">
+            <p style="margin: 0 0 8px; line-height: 1.5;">${report.description}</p>
+            <p style="margin: 0; font-size: 12px; color: #666;">
+              <strong>Location:</strong> ${report.address}
+            </p>
+          </div>
+          <div style="font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 8px;">
+            <p style="margin: 0 0 4px;">
+              <strong>Status:</strong> 
+              <span style="color: ${report.status === 'pending' ? '#FFA500' : '#4CAF50'};">
+                ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+              </span>
+            </p>
+            <p style="margin: 0; font-style: italic;">
+              Reported on ${formattedDate}
+            </p>
+          </div>
+        </div>
+      `;
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: infoWindowContent,
+        maxWidth: 320
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+    });
+  }, [isMapReady, processedReportLocations]);
 
   return (
     <>
       <Script
         src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places&callback=initMap`}
         strategy="afterInteractive"
-        // onReady and onError could be useful for more robust loading indication
       />
       <div 
         ref={mapRef} 
