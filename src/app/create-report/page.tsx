@@ -129,13 +129,6 @@ export default function CreateReport() {
     }
   }, []);
 
-  // Get location when component mounts if browser supports geolocation
-  useEffect(() => {
-    if (navigator.geolocation) {
-      getUserLocation();
-    }
-  }, [getUserLocation]);
-
   const handleAISubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userPrompt.trim() || isProcessingAI) return;

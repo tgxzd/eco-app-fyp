@@ -37,9 +37,13 @@ interface ReportLocation {
 interface GoogleMapProps {
   apiKey: string;
   reportLocations?: ReportLocation[];
+  initialLocation?: {
+    lat: number;
+    lng: number;
+  };
 }
 
-export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapProps) {
+export default function GoogleMap({ apiKey, reportLocations = [], initialLocation }: GoogleMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInitialized = useRef(false);
   const [isMapReady, setIsMapReady] = useState(false);
@@ -62,7 +66,7 @@ export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapPro
       if (mapInitialized.current) return;
       mapInitialized.current = true;
       
-      const defaultLocation = { lat: 3.1390, lng: 101.6869 };
+      const defaultLocation = initialLocation || { lat: 3.1390, lng: 101.6869 };
       
       const map = new google.maps.Map(mapRef.current, {
         center: defaultLocation,
@@ -92,32 +96,21 @@ export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapPro
       
       mapInstanceRef.current = map;
       
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const userLocation = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            };
-            map.setCenter(userLocation);
-            new google.maps.Marker({
-              position: userLocation,
-              map: map,
-              title: "Your Location",
-              icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: "#B45309",
-                fillOpacity: 0.7,
-                strokeWeight: 2,
-                strokeColor: "#FBBF24",
-              },
-            });
+      // Add marker for user's location if available
+      if (initialLocation) {
+        new google.maps.Marker({
+          position: initialLocation,
+          map: map,
+          title: "Your Location",
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: "#B45309",
+            fillOpacity: 0.7,
+            strokeWeight: 2,
+            strokeColor: "#FBBF24",
           },
-          () => {
-            console.log("Unable to retrieve your location for map centering.");
-          }
-        );
+        });
       }
       
       // Signal that the map is ready
@@ -129,7 +122,7 @@ export default function GoogleMap({ apiKey, reportLocations = [] }: GoogleMapPro
     } else {
       window.initMap = initMap;
     }
-  }, [googleMapsApiKey]);
+  }, [googleMapsApiKey, initialLocation]);
 
   // Fetch and process report locations
   useEffect(() => {

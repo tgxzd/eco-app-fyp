@@ -1,6 +1,7 @@
 'use client';
 
 import GoogleMap from './GoogleMap';
+import { useLocation } from '@/contexts/LocationContext';
 
 export interface ReportLocation {
   report_id: string;
@@ -19,6 +20,8 @@ interface MapWrapperProps {
 }
 
 export default function MapWrapper({ apiKey, reportLocations = [] }: MapWrapperProps) {
+  const { location, isLoading, error } = useLocation();
+
   return (
     <div className="bg-black/40 p-4 border border-amber-700/50">
       <div className="flex items-center justify-between mb-4">
@@ -36,7 +39,24 @@ export default function MapWrapper({ apiKey, reportLocations = [] }: MapWrapperP
         </div>
       </div>
       <div className="relative">
-        <GoogleMap apiKey={apiKey} reportLocations={reportLocations} />
+        {isLoading ? (
+          <div className="w-full h-[400px] bg-gray-800/60 border border-amber-700/30 flex items-center justify-center">
+            <p className="text-amber-100 font-serif">Loading map...</p>
+          </div>
+        ) : error ? (
+          <div className="w-full h-[400px] bg-gray-800/60 border border-amber-700/30 flex items-center justify-center">
+            <p className="text-amber-100 font-serif text-center px-4">{error}</p>
+          </div>
+        ) : (
+          <GoogleMap 
+            apiKey={apiKey} 
+            reportLocations={reportLocations}
+            initialLocation={location ? {
+              lat: location.latitude,
+              lng: location.longitude
+            } : undefined}
+          />
+        )}
       </div>
     </div>
   );
