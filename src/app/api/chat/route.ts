@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const FLOWISE_API_URL = "http://146.190.90.238:3000/api/v1/prediction/df295b68-b71a-45ab-8c2b-5aeb451594a9";
+const FLOWISE_API_URL = "http://159.65.4.16:3000/api/v1/prediction/06b41f37-cc33-4558-9b91-b0631f48bfbc";
 
 export async function POST(request: Request) {
   try {
