@@ -64,12 +64,4 @@ interface FlowiseRequest {
     }
   }
   
-  // Example usage:
-  // import { queryFlowiseAI } from '@/services/flowiseAI';
-  //
-  // try {
-  //   const response = await queryFlowiseAI({ question: "Hey, how are you?" });
-  //   console.log(response);
-  // } catch (error) {
-  //   console.error("Failed to get response from Flowise AI:", error);
-  // } 
+ 

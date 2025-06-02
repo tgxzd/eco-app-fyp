@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const FLOWISE_API_URL = "http://159.65.4.16:3000/api/v1/prediction/06b41f37-cc33-4558-9b91-b0631f48bfbc";
+if (!process.env.FLOWISE_API_URL) {
+  throw new Error('FLOWISE_API_URL environment variable is not set');
+}
+
+const FLOWISE_API_URL = process.env.FLOWISE_API_URL;
 
 export async function POST(request: Request) {
   try {

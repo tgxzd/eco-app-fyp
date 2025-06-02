@@ -37,15 +37,21 @@ export default function Home() {
         <div className="mt-12 flex flex-col sm:flex-row gap-6">
           <Link 
             href="/login" 
-            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg"
+            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg text-center w-full sm:w-auto"
           >
             Sign In
           </Link>
           <Link 
             href="/register" 
-            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg"
+            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg text-center w-full sm:w-auto"
           >
             Register
+          </Link>
+          <Link 
+            href="/admin/login" 
+            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg text-center w-full sm:w-auto"
+          >
+            Admin
           </Link>
         </div>
       </div>
