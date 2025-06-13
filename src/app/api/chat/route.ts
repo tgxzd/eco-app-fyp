@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 
+interface AgentReasoning {
+  agentName: string;
+  [key: string]: unknown;
+}
+
 if (!process.env.FLOWISE_API_URL) {
   throw new Error('FLOWISE_API_URL environment variable is not set');
 }
@@ -43,7 +48,7 @@ export async function POST(request: Request) {
     if (data.agentReasoning && Array.isArray(data.agentReasoning)) {
       // Find the first non-RouterAgent agent
       const agentInfo = data.agentReasoning.find(
-        (agent: any) => agent.agentName && agent.agentName !== 'RouterAgent'
+        (agent: AgentReasoning) => agent.agentName && agent.agentName !== 'RouterAgent'
       );
       if (agentInfo) {
         agentType = agentInfo.agentName.toUpperCase();

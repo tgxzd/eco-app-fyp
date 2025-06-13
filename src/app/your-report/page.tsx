@@ -93,7 +93,7 @@ export default function YourReportPage() {
 
             {!isLoading && !error && reports.length === 0 && (
               <div className="text-center text-amber-100/70 font-serif">
-                You haven't created any reports yet.
+                You haven&apos;t created any reports yet.
               </div>
             )}
 
@@ -106,17 +106,24 @@ export default function YourReportPage() {
                         <h2 className="text-xl font-serif text-amber-100 group-hover:text-amber-300 transition-colors duration-300 truncate">
                           Report ID: {report.id}
                         </h2>
-                        <span className={`px-3 py-1 text-xs font-semibold rounded-full font-serif
-                          ${report.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' : 
-                            report.status === 'approved' ? 'bg-green-500/20 text-green-300' : 
-                            'bg-red-500/20 text-red-300'}
-                        `}>
-                          {report.status.toUpperCase()}
-                        </span>
                       </div>
-                      <p className="text-amber-100/80 font-serif text-sm mb-1 capitalize">
-                        Category: {report.category.replace('-', ' ')}
-                      </p>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-amber-100/80 font-serif text-sm capitalize">
+                          Category: {report.category.replace('-', ' ')}
+                        </p>
+                        {report.status === 'resolved' ? (
+                          <span className="inline-flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs font-serif">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Resolved
+                          </span>
+                        ) : (
+                          <span className="inline-block px-2 py-1 bg-yellow-600 text-white rounded text-xs font-serif">
+                            Pending
+                          </span>
+                        )}
+                      </div>
                       <p className="text-amber-100/80 font-serif text-sm mb-3 line-clamp-2">
                         {report.description}
                       </p>

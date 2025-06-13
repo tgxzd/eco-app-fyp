@@ -1,17 +1,37 @@
 interface FlowiseRequest {
     question: string;
-    [key: string]: any; // Allow for additional properties
+    [key: string]: unknown; // Allow for additional properties
+  }
+  
+  interface Message {
+    [key: string]: unknown;
+  }
+  
+  interface Tool {
+    [key: string]: unknown;
+  }
+  
+  interface SourceDocument {
+    [key: string]: unknown;
+  }
+  
+  interface Artifact {
+    [key: string]: unknown;
+  }
+  
+  interface AgentState {
+    [key: string]: unknown;
   }
   
   interface AgentReasoning {
     agentName: string;
-    messages: any[];
+    messages: Message[];
     nodeName: string;
     nodeId: string;
-    usedTools?: any[];
-    sourceDocuments?: any[];
-    artifacts?: any[];
-    state?: any;
+    usedTools?: Tool[];
+    sourceDocuments?: SourceDocument[];
+    artifacts?: Artifact[];
+    state?: AgentState;
   }
   
   interface FlowiseResponse {

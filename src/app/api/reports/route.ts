@@ -8,9 +8,19 @@ export async function GET() {
       where: {
         locationId: {
           not: null
-        }
+        },
+        status: 'pending' // Only show pending reports on the map
       },
-      include: {
+      select: {
+        id: true,
+        description: true,
+        category: true,
+        imagePath: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        locationId: true,
         location: true
       },
       orderBy: {

@@ -12,7 +12,6 @@ interface Report {
   id: string;
   description: string;
   category: string;
-  status: string;
   imagePath?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -52,31 +51,18 @@ async function getReport(id: string): Promise<Report | null> {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ReportDetailPage({ params }: PageProps) {
-  const report = await getReport(params.id);
+  const { id } = await params;
+  const report = await getReport(id);
 
   if (!report) {
     notFound();
   }
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'pending':
-        return 'bg-yellow-500/20 text-yellow-300';
-      case 'approved':
-      case 'resolved':
-        return 'bg-green-500/20 text-green-300';
-      case 'rejected':
-        return 'bg-red-500/20 text-red-300';
-      default:
-        return 'bg-gray-500/20 text-gray-300';
-    }
-  };
 
   return (
     <div className="relative min-h-screen bg-[#121212]">
@@ -101,62 +87,64 @@ export default async function ReportDetailPage({ params }: PageProps) {
 
         <main className="flex-grow flex flex-col items-center p-4 md:p-8">
           <div className="w-full max-w-3xl mx-auto bg-black/60 border border-amber-700/30 rounded-lg shadow-xl overflow-hidden">
-            {report.imagePath && (
-              <ImageViewer
-                src={report.imagePath}
-                alt={`Report image for ${report.category}`}
-              />
-            )}
-            <div className="p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 pb-4 border-b border-amber-700/20">
-                <div>
-                  <h1 className="text-2xl md:text-3xl font-serif text-amber-100 mb-1 capitalize">
-                    {report.category.replace('-', ' ')} Report
-                  </h1>
-                  <p className="text-xs text-amber-100/60 font-serif">
-                    Reported on: {new Date(report.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <h1 className="text-2xl font-bold text-amber-100">Report Details</h1>
+                <div className="flex gap-2">
+                  <Link
+                    href="/your-report"
+                    className="text-amber-100/60 hover:text-amber-100 transition-colors"
+                  >
+                    Back to Reports
+                  </Link>
+                  <DeleteReportButton reportId={report.id} />
                 </div>
-                <span className={`mt-2 sm:mt-0 px-4 py-1.5 text-sm font-semibold rounded-full font-serif ${getStatusColor(report.status)}`}>
-                  Status: {report.status.toUpperCase()}
-                </span>
               </div>
 
-              <div className="mb-6">
-                <h2 className="text-lg font-serif text-amber-200 mb-2">Description</h2>
-                <p className="text-amber-100/90 font-serif leading-relaxed">
-                  {report.description}
-                </p>
-              </div>
+              <div className="bg-amber-950/50 p-6 rounded-lg">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-amber-100/60 text-sm mb-1">Category</h2>
+                    <p className="text-amber-100 capitalize">{report.category}</p>
+                  </div>
 
-              {report.location && (
-                <div className="mb-6 pb-6 border-b border-amber-700/20">
-                  <h2 className="text-lg font-serif text-amber-200 mb-2">Location Details</h2>
-                  {report.location.address ? (
-                    <p className="text-amber-100/90 font-serif">{report.location.address}</p>
-                  ) : (
-                    <p className="text-amber-100/70 font-serif italic">Address not available.</p>
+                  <div>
+                    <h2 className="text-amber-100/60 text-sm mb-1">Description</h2>
+                    <p className="text-amber-100">{report.description}</p>
+                  </div>
+
+                  {report.location && (
+                    <div>
+                      <h2 className="text-amber-100/60 text-sm mb-1">Location</h2>
+                      <p className="text-amber-100">
+                        {report.location.address || 'No address provided'}
+                      </p>
+                      <p className="text-amber-100/60 text-sm">
+                        Coordinates: {report.location.latitude}, {report.location.longitude}
+                      </p>
+                    </div>
                   )}
-                  <p className="text-xs text-amber-100/60 font-serif mt-1">
-                    Coordinates: {report.location.latitude.toFixed(6)}, {report.location.longitude.toFixed(6)}
-                  </p>
+
+                  {report.imagePath && (
+                    <div>
+                      <h2 className="text-amber-100/60 text-sm mb-1">Image</h2>
+                      <ImageViewer src={report.imagePath} alt="Report Image" />
+                    </div>
+                  )}
+
+                  <div>
+                    <h2 className="text-amber-100/60 text-sm mb-1">Submitted by</h2>
+                    <p className="text-amber-100">{report.user.name || 'Anonymous'}</p>
+                    <p className="text-amber-100/60 text-sm">{report.user.email}</p>
+                  </div>
+
+                  <div>
+                    <h2 className="text-amber-100/60 text-sm mb-1">Created At</h2>
+                    <p className="text-amber-100">
+                      {new Date(report.createdAt).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              )}
-
-              <div className="mb-6">
-                <h2 className="text-lg font-serif text-amber-200 mb-2">Reported By</h2>
-                <p className="text-amber-100/90 font-serif">{report.user.name || report.user.email}</p>
-                <p className="text-xs text-amber-100/60 font-serif">User ID: {report.userId}</p>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link 
-                  href="/your-report" 
-                  className="px-6 py-2 bg-amber-700/30 text-amber-100 font-serif border border-amber-700 hover:bg-amber-700/50 transition-colors duration-300 uppercase tracking-widest text-sm shadow-md"
-                >
-                  ← Back to Your Reports
-                </Link>
-                <DeleteReportButton reportId={report.id} />
               </div>
             </div>
           </div>

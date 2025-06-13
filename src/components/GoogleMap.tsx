@@ -8,7 +8,6 @@ import { ReportLocation } from './MapWrapper';
 interface ApiReportData {
   id: string;
   category: string;
-  status: string;
   description: string;
   imagePath: string | null;
   createdAt: string;
@@ -19,19 +18,6 @@ interface ApiReportData {
     longitude: number;
     address: string | null;
   } | null;
-}
-
-interface ReportLocation {
-  report_id: string;
-  category: string;
-  status: string;
-  description: string;
-  location_id: string;
-  latitude: number;
-  longitude: number;
-  address: string;
-  imagePath: string | null;
-  createdAt: string;
 }
 
 interface GoogleMapProps {
@@ -156,7 +142,7 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
             .map((report: ApiReportData): ReportLocation => ({
               report_id: report.id,
               category: report.category,
-              status: report.status,
+              status: 'pending', // Default status since it's not in the API data
               description: report.description,
               location_id: report.locationId || '',
               latitude: report.location!.latitude,
@@ -207,7 +193,7 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
       });
 
       // Format the date
-      const reportDate = new Date(report.createdAt);
+      const reportDate = new Date(report.createdAt || Date.now());
       const formattedDate = reportDate.toLocaleString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -234,14 +220,8 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
             </p>
           </div>
           <div style="font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 8px;">
-            <p style="margin: 0 0 4px;">
-              <strong>Status:</strong> 
-              <span style="color: ${report.status === 'pending' ? '#FFA500' : '#4CAF50'};">
-                ${report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-              </span>
-            </p>
             <p style="margin: 0; font-style: italic;">
-              Reported on ${formattedDate}
+              ${report.createdAt ? `Reported on ${formattedDate}` : 'Report date not available'}
             </p>
           </div>
         </div>

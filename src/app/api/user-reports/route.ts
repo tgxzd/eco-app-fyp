@@ -17,7 +17,16 @@ export async function GET() {
       where: {
         userId: user.user_id,
       },
-      include: {
+      select: {
+        id: true,
+        description: true,
+        category: true,
+        status: true,
+        imagePath: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        locationId: true,
         location: true, // Include location data if needed
       },
       orderBy: {

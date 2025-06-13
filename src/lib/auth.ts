@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
 const prisma = new PrismaClient();
 
@@ -425,4 +426,48 @@ export async function handleRegister(formData: FormData): Promise<{ error?: stri
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+export function getJwtSecretKey() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT Secret key is not set');
+  }
+  return secret;
+}
+
+export async function verifyAuth() {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('session-token')?.value;
+
+    if (!token) return null;
+
+    try {
+      const verified = await jwtVerify(
+        token,
+        new TextEncoder().encode(getJwtSecretKey())
+      );
+      return verified.payload;
+    } catch {
+      return null;
+    }
+  } catch (error) {
+    console.error('Error verifying auth:', error);
+    return null;
+  }
+}
+
+export interface OrganizationJWTPayload {
+  id: string;
+  email: string;
+  role: 'organization';
+}
+
+export async function getOrganization() {
+  const payload = await verifyAuth();
+  if (!payload || typeof payload !== 'object' || payload.role !== 'organization') {
+    return null;
+  }
+  return payload as unknown as OrganizationJWTPayload;
 } 

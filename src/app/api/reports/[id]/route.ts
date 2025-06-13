@@ -1,13 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/session';
 
 export async function GET(
-  request: Request, // Standard Request object
-  { params }: { params: { id: string } }
-) {
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  let reportId: string = '';
+  
   try {
-    const reportId = params.id;
+    const { id } = await params;
+    reportId = id;
 
     if (!reportId) {
       return NextResponse.json(
@@ -20,9 +23,17 @@ export async function GET(
       where: {
         id: reportId,
       },
-      include: {
-        location: true, // Include location details
-        user: { // Optionally include basic user details (like name/email)
+      select: {
+        id: true,
+        description: true,
+        category: true,
+        imagePath: true,
+        createdAt: true,
+        updatedAt: true,
+        userId: true,
+        locationId: true,
+        location: true,
+        user: {
           select: {
             name: true,
             email: true,
@@ -57,7 +68,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error(`Error fetching report ${params.id}:`, error);
+    console.error(`Error fetching report ${reportId}:`, error);
     return NextResponse.json(
       { success: false, message: 'Failed to fetch report' },
       { status: 500 }

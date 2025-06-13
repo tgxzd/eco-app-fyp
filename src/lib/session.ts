@@ -87,4 +87,32 @@ export async function requireAuth() {
 export async function isAuthenticated(): Promise<boolean> {
   const { isAuthenticated } = await getSession();
   return isAuthenticated;
+}
+
+/**
+ * Gets the current admin session (for admin dashboard)
+ */
+export async function getAdminSession(): Promise<boolean> {
+  try {
+    const cookieStore = await cookies();
+    const adminSession = cookieStore.get('admin-session')?.value;
+    
+    console.log('Admin session check:', { hasSession: !!adminSession });
+    
+    return !!adminSession;
+  } catch (error) {
+    console.error('Admin session retrieval error:', error);
+    return false;
+  }
+}
+
+/**
+ * Requires admin authentication
+ */
+export async function requireAdmin(): Promise<boolean> {
+  const isAdmin = await getAdminSession();
+  if (!isAdmin) {
+    throw new Error('Unauthorized - Admin access required');
+  }
+  return true;
 } 

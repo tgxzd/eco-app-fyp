@@ -9,12 +9,13 @@ export async function POST(request: Request) {
         // Check if credentials match admin credentials
         if (username === 'admin' && password === 'admin') {
             // Create session
+            const cookieStore = await cookies();
             const response = NextResponse.json(
                 { message: 'Login successful' },
                 { status: 200 }
             );
 
-            response.cookies.set('admin-session', 'true', {
+            await cookieStore.set('admin-session', 'true', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
@@ -28,9 +29,9 @@ export async function POST(request: Request) {
             { message: 'Invalid credentials' },
             { status: 401 }
         );
-    } catch (error) {
+    } catch {
         return NextResponse.json(
-            { message: 'Internal server error' },
+            { success: false, message: 'Internal server error' },
             { status: 500 }
         );
     }

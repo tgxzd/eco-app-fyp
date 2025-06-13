@@ -12,6 +12,8 @@ export interface ReportLocation {
   latitude: number;
   longitude: number;
   address: string;
+  imagePath?: string | null;
+  createdAt?: string;
 }
 
 interface MapWrapperProps {

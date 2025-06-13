@@ -48,6 +48,12 @@ export default function Home() {
             Register
           </Link>
           <Link 
+            href="/environmental-organization/login" 
+            className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg text-center w-full sm:w-auto"
+          >
+            Environmental Organization
+          </Link>
+          <Link 
             href="/admin/login" 
             className="px-8 py-2 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest text-sm shadow-lg text-center w-full sm:w-auto"
           >

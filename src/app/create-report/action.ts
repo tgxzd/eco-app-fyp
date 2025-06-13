@@ -8,7 +8,6 @@ export type Report = {
   id: string;
   description: string;
   category: string;
-  status: string;
   imagePath?: string | null;
   userId: string;
   locationId?: string | null;
@@ -151,7 +150,6 @@ export async function createReport(formData: FormData): Promise<CreateReportResp
       data: {
         description,
         category,
-        status: 'pending',
         imagePath,
         userId: user.user_id,
         locationId

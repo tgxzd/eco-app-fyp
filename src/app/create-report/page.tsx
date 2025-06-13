@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import NavHeader from "@/components/ui/nav-header";
-import { useState, useTransition, useRef, useCallback, useEffect } from "react";
+import { useState, useTransition, useRef, useCallback } from "react";
 import { createReport } from "./action";
 import Webcam from "react-webcam";
 import { queryFlowiseAI } from '@/lib/flowiseAI';
@@ -33,19 +33,6 @@ export default function CreateReport() {
     'wildfire': 'Wildfire'
   };
 
-  const getCategoryColor = (category: string | null) => {
-    switch (category) {
-      case 'air-pollution':
-        return 'from-red-500 to-orange-500';
-      case 'water-pollution':
-        return 'from-blue-500 to-cyan-500';
-      case 'wildfire':
-        return 'from-orange-500 to-red-600';
-      default:
-        return 'from-gray-500 to-gray-600';
-    }
-  };
-
   const getCategoryIcon = (category: string | null) => {
     switch (category) {
       case 'air-pollution':
@@ -59,75 +46,52 @@ export default function CreateReport() {
     }
   };
 
-  // Function to get user's location
-  const getUserLocation = useCallback(() => {
-    setIsLoadingLocation(true);
-    setMessage("");
-    
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          
-          // Attempt to get address using reverse geocoding
-          try {
-            const response = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              const address = data.results[0]?.formatted_address || "Unknown location";
-              
-              setLocation({
-                latitude,
-                longitude,
-                address
-              });
-            } else {
-              setLocation({
-                latitude,
-                longitude,
-                address: "Unknown location"
-              });
-            }
-          } catch {
-            // If geocoding fails, just use coordinates
-            setLocation({
-              latitude,
-              longitude,
-              address: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
-            });
-          }
-          
-          setIsLoadingLocation(false);
-        },
-        (error) => {
-          setIsLoadingLocation(false);
-          setMessageType("error");
-          
-          let errorMsg = "Unable to retrieve your location";
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMsg = "Location access denied. Please enable location services to continue.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMsg = "Location information is unavailable.";
-              break;
-            case error.TIMEOUT:
-              errorMsg = "Location request timed out.";
-              break;
-          }
-          
-          setMessage(errorMsg);
-        }
-      );
-    } else {
-      setIsLoadingLocation(false);
-      setMessageType("error");
-      setMessage("Geolocation is not supported by your browser");
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      console.error('Geolocation is not supported by this browser.');
+      return;
     }
-  }, []);
+
+    setIsLoadingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Use Google Maps Geocoding API instead of OpenCage
+          const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`);
+          const data = await response.json();
+          
+          let address = `${latitude}, ${longitude}`; // Default fallback
+          
+          if (data.status === 'OK' && data.results && data.results.length > 0) {
+            address = data.results[0].formatted_address;
+          } else {
+            console.error('Google Maps API error:', data.status, data.error_message);
+          }
+          
+          setLocation({
+            latitude,
+            longitude,
+            address: address
+          });
+        } catch (error) {
+          console.error('Error fetching address:', error);
+          setLocation({
+            latitude,
+            longitude,
+            address: `${latitude}, ${longitude}`
+          });
+        } finally {
+          setIsLoadingLocation(false);
+        }
+      },
+      (error) => {
+        console.error("Unable to retrieve your location:", error);
+        setIsLoadingLocation(false);
+      }
+    );
+  };
 
   const handleAISubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +117,7 @@ export default function CreateReport() {
         setMessageType("error");
         setMessage("Unable to categorize the environmental issue. Please try again with more specific details.");
       }
-    } catch (error) {
+    } catch {
       setMessageType("error");
       setMessage("An error occurred while processing your description. Please try again.");
     } finally {
@@ -229,7 +193,7 @@ export default function CreateReport() {
         }
       } catch {
         setMessageType("error");
-        setMessage("An error occurred while creating the report.");
+        setMessage("An unexpected error occurred. Please try again.");
       }
     });
   };
@@ -346,7 +310,7 @@ export default function CreateReport() {
                       <h3 className="text-amber-100 font-serif">Location Information</h3>
                       <button
                         type="button"
-                        onClick={getUserLocation}
+                        onClick={getCurrentLocation}
                         className="px-3 py-1 bg-amber-700/70 text-amber-100 font-serif text-sm hover:bg-amber-700 transition-colors"
                         disabled={isLoadingLocation}
                       >

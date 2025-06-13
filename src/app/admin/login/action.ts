@@ -21,7 +21,7 @@ export async function loginAction(_prevState: LoginState, formData: FormData): P
     if (username === 'admin' && password === 'admin') {
         // Create session
         const cookieStore = await cookies();
-        cookieStore.set('admin-session', 'true', {
+        await cookieStore.set('admin-session', 'true', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
