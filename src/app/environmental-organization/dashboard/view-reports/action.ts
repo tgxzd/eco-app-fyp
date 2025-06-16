@@ -22,10 +22,14 @@ export async function getReportsByCategory() {
             return { success: false, message: 'Organization not found' };
         }
 
+        // Convert organization category to match report format
+        // Organizations store "air pollution", reports store "air-pollution"
+        const reportCategory = organization.category.replace(/\s+/g, '-').toLowerCase();
+        
         // Fetch reports that match the organization's category
         const reports = await prisma.report.findMany({
             where: {
-                category: organization.category
+                category: reportCategory
             },
             select: {
                 id: true,
@@ -118,8 +122,11 @@ export async function getReportByIdForOrganization(reportId: string) {
             return { success: false, message: 'Report not found' };
         }
 
+        // Convert organization category to match report format
+        const reportCategory = organization.category.replace(/\s+/g, '-').toLowerCase();
+        
         // Check if the report matches the organization's category
-        if (report.category !== organization.category) {
+        if (report.category !== reportCategory) {
             return { success: false, message: 'Report category does not match organization focus' };
         }
 
@@ -159,7 +166,10 @@ export async function markReportAsResolved(reportId: string) {
             return { success: false, message: 'Report not found' };
         }
 
-        if (report.category !== organization.category) {
+        // Convert organization category to match report format
+        const reportCategory = organization.category.replace(/\s+/g, '-').toLowerCase();
+        
+        if (report.category !== reportCategory) {
             return { success: false, message: 'You can only resolve reports in your organization\'s focus area' };
         }
 

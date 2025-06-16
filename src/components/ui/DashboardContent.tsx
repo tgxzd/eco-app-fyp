@@ -1,0 +1,119 @@
+'use client';
+
+import { motion, Variants } from 'framer-motion';
+import Link from 'next/link';
+import MapWrapper from '@/components/MapWrapper';
+
+interface DashboardContentProps {
+  mapsApiKey: string;
+}
+
+const DashboardContent = ({ mapsApiKey }: DashboardContentProps) => {
+  const fadeInUp: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }
+    }
+  };
+
+  const stagger: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const mapVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      scale: 1,
+      transition: { duration: 0.7, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }
+    }
+  };
+
+  const buttonVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center flex-grow px-4 py-8 md:py-12 w-full">
+      {/* Welcome Section */}
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={fadeInUp}
+        className="text-center mb-8"
+      >
+        <h1 className="text-3xl md:text-4xl font-light text-white font-poppins mb-2">
+          <span className="text-emerald-500">Dashboard</span>
+        </h1>
+        <p className="text-gray-300 font-poppins">Monitor and report environmental issues in your area</p>
+      </motion.div>
+
+      {/* Google Maps Container */}
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={mapVariants}
+        className="mb-8 w-full max-w-5xl"
+      >
+        <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-xl p-4 shadow-lg relative overflow-hidden">
+          {/* Glass effect background */}
+          <motion.div 
+            animate={{ 
+              opacity: [0.3, 0.6, 0.3],
+              scale: [1, 1.1, 1]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"
+          ></motion.div>
+          <motion.div 
+            animate={{ 
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1.1, 1, 1.1]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute -bottom-20 -left-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"
+          ></motion.div>
+          
+          {/* Subtle border glow */}
+          <div className="absolute inset-0 rounded-xl border border-emerald-500/20 pointer-events-none"></div>
+          
+          <div className="relative z-10">
+            <MapWrapper apiKey={mapsApiKey} />
+          </div>
+        </div>
+      </motion.div>
+      
+      {/* Action Buttons */}
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={buttonVariants}
+        className="flex flex-col sm:flex-row gap-4 items-center"
+      >
+        <Link href="/create-report" className="group">
+          <button className="px-8 py-4 bg-emerald-500/80 backdrop-blur-sm text-white font-poppins rounded-lg hover:bg-emerald-500 transition-all duration-300 font-medium relative overflow-hidden shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center space-x-3">
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-500/0 via-emerald-500/30 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+            <span className="relative">Create New Report</span>
+            <span className="relative transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </button>
+        </Link>
+      </motion.div>
+    </div>
+  );
+};
+
+export default DashboardContent; 

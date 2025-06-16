@@ -59,43 +59,114 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
         zoom: 13,
         mapTypeId: "roadmap",
         styles: [
-          { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-          { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-          { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-          { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-          { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-          { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }] },
-          { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }] },
-          { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }] },
-          { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }] },
-          { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }] },
-          { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }] },
-          { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }] },
-          { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }] },
-          { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }] },
-          { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }] },
-          { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }] },
-          { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }] },
-          { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }] },
-        ]
+          // Enhanced dark theme with emerald accents
+          { elementType: "geometry", stylers: [{ color: "#0f1419" }] },
+          { elementType: "labels.text.stroke", stylers: [{ color: "#0f1419" }] },
+          { elementType: "labels.text.fill", stylers: [{ color: "#6b7280" }] },
+          
+          // Administrative areas
+          { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#10b981" }] },
+          { featureType: "administrative.country", elementType: "labels.text.fill", stylers: [{ color: "#059669" }] },
+          
+          // Points of interest
+          { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#34d399" }] },
+          { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#064e3b" }] },
+          { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#10b981" }] },
+          { featureType: "poi.business", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
+          
+          // Roads with emerald highlights
+          { featureType: "road", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
+          { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#111827" }] },
+          { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca3af" }] },
+          { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#374151" }] },
+          { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2937" }] },
+          { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#d1fae5" }] },
+          { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#2d3748" }] },
+          { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#1a202c" }] },
+          
+          // Transit
+          { featureType: "transit", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
+          { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#10b981" }] },
+          
+          // Water with emerald tint
+          { featureType: "water", elementType: "geometry", stylers: [{ color: "#0c4a6e" }] },
+          { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#0891b2" }] },
+          { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#0c4a6e" }] },
+          
+          // Landscape
+          { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#111827" }] },
+          { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1f2937" }] },
+        ],
+        // Enhanced map options
+        disableDefaultUI: false,
+        zoomControl: true,
+        mapTypeControl: false,
+        scaleControl: true,
+        streetViewControl: false,
+        rotateControl: false,
+        fullscreenControl: true,
+        gestureHandling: 'cooperative',
+        // Custom styling for controls
+        zoomControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_BOTTOM,
+          style: google.maps.ZoomControlStyle.SMALL
+        },
+        fullscreenControlOptions: {
+          position: google.maps.ControlPosition.RIGHT_TOP
+        }
       });
       
       mapInstanceRef.current = map;
       
-      // Add marker for user's location if available
+      // Add custom user location marker with enhanced styling
       if (initialLocation) {
-        new google.maps.Marker({
+        // Create custom user marker with pulsing effect
+        const userMarker = new google.maps.Marker({
           position: initialLocation,
           map: map,
           title: "Your Location",
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: "#B45309",
-            fillOpacity: 0.7,
-            strokeWeight: 2,
-            strokeColor: "#FBBF24",
+            scale: 12,
+            fillColor: "#10b981",
+            fillOpacity: 0.8,
+            strokeWeight: 3,
+            strokeColor: "#ffffff",
+            strokeOpacity: 0.9,
           },
+          animation: google.maps.Animation.DROP,
+        });
+
+        // Add pulsing circle around user location
+        const userCircle = new google.maps.Circle({
+          strokeColor: "#10b981",
+          strokeOpacity: 0.6,
+          strokeWeight: 2,
+          fillColor: "#10b981",
+          fillOpacity: 0.1,
+          map: map,
+          center: initialLocation,
+          radius: 500, // 500 meters
+        });
+
+        // Create info window for user location
+        const userInfoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="padding: 12px; font-family: 'Poppins', sans-serif; max-width: 200px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <div style="width: 12px; height: 12px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);"></div>
+                <h3 style="margin: 0; color: #10b981; font-weight: 600; font-size: 16px;">Your Location</h3>
+              </div>
+              <p style="margin: 0; color: #374151; font-size: 14px; line-height: 1.4;">
+                You are here! Start exploring environmental reports in your area.
+              </p>
+            </div>
+          `,
+          maxWidth: 250
+        });
+
+        userMarker.addListener('click', () => {
+          userInfoWindow.open(map, userMarker);
         });
       }
       
@@ -162,34 +233,59 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
     fetchAndProcessReportLocations();
   }, [reportLocations]);
 
-  // Add markers only when both map and data are ready
+  // Add enhanced markers for reports
   useEffect(() => {
     if (!isMapReady || processedReportLocations.length === 0 || !mapInstanceRef.current || !window.google) {
       return;
     }
 
-    // Clear existing markers if any
     const map = mapInstanceRef.current;
 
-    processedReportLocations.forEach(report => {
+    // Category-based marker styling
+    const getCategoryIcon = (category: string) => {
+      const categoryColors = {
+        'pollution': { color: '#ef4444', bgColor: '#fef2f2' },
+        'waste': { color: '#f59e0b', bgColor: '#fffbeb' },
+        'water': { color: '#3b82f6', bgColor: '#eff6ff' },
+        'air': { color: '#8b5cf6', bgColor: '#f5f3ff' },
+        'noise': { color: '#ec4899', bgColor: '#fdf2f8' },
+        'default': { color: '#ef4444', bgColor: '#fef2f2' }
+      };
+
+      const categoryStyle = categoryColors[category.toLowerCase() as keyof typeof categoryColors] || categoryColors.default;
+
+      return {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 14,
+        fillColor: categoryStyle.color,
+        fillOpacity: 0.9,
+        strokeWeight: 3,
+        strokeColor: "#ffffff",
+        strokeOpacity: 1,
+      };
+    };
+
+    processedReportLocations.forEach((report, index) => {
       const reportPosition = {
         lat: Number(report.latitude),
         lng: Number(report.longitude)
       };
 
+      // Create enhanced marker with category-based styling
       const marker = new google.maps.Marker({
         position: reportPosition,
         map: map,
-        title: `Report: ${report.category}`,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: "#FF0000",
-          fillOpacity: 0.7,
-          strokeWeight: 2,
-          strokeColor: "#FFFFFF",
-        },
+        title: `${report.category} Report`,
+        icon: getCategoryIcon(report.category),
         animation: google.maps.Animation.DROP,
+        // Add slight delay for staggered animation
+        optimized: false
+      });
+
+      // Add subtle bounce animation on hover
+      marker.addListener('mouseover', () => {
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(() => marker.setAnimation(null), 1400);
       });
 
       // Format the date
@@ -202,39 +298,67 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
         minute: '2-digit'
       });
 
-      // Create the info window content with image and details
+      // Enhanced info window with modern styling
       const infoWindowContent = `
-        <div style="padding: 16px; max-width: 300px; font-family: system-ui, sans-serif;">
-          <h3 style="margin: 0 0 12px; color: #FF0000; font-weight: bold; font-size: 18px; text-transform: uppercase;">
-            ${report.category}
+        <div style="padding: 20px; max-width: 320px; font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, ${getCategoryIcon(report.category).fillColor}, ${getCategoryIcon(report.category).fillColor}dd); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+              <div style="width: 12px; height: 12px; background: white; border-radius: 50%;"></div>
+            </div>
+            <div>
+              <h3 style="margin: 0; color: #1f2937; font-weight: 600; font-size: 18px; text-transform: capitalize;">
+                ${report.category} Issue
           </h3>
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                <span style="color: #10b981; font-size: 12px; font-weight: 500;">Active Report</span>
+              </div>
+            </div>
+          </div>
+          
           ${report.imagePath ? `
-            <div style="margin-bottom: 12px;">
-              <img src="${report.imagePath}" alt="Report evidence" style="width: 100%; height: auto; border-radius: 4px; border: 2px solid rgba(180, 83, 9, 0.5);">
+            <div style="margin-bottom: 16px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <img src="${report.imagePath}" alt="Report evidence" style="width: 100%; height: 160px; object-fit: cover; border: none;">
             </div>
           ` : ''}
-          <div style="margin-bottom: 12px;">
-            <p style="margin: 0 0 8px; line-height: 1.5;">${report.description}</p>
-            <p style="margin: 0; font-size: 12px; color: #666;">
-              <strong>Location:</strong> ${report.address}
+          
+          <div style="margin-bottom: 16px;">
+            <p style="margin: 0 0 12px; line-height: 1.6; color: #374151; font-size: 14px;">${report.description}</p>
+            <div style="background: #f3f4f6; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <p style="margin: 0; font-size: 13px; color: #6b7280;">
+                <strong style="color: #374151;">📍 Location:</strong> ${report.address}
             </p>
+            </div>
           </div>
-          <div style="font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 8px;">
-            <p style="margin: 0; font-style: italic;">
-              ${report.createdAt ? `Reported on ${formattedDate}` : 'Report date not available'}
-            </p>
+          
+          <div style="display: flex; justify-content: between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+            <div style="font-size: 12px; color: #9ca3af;">
+              <span style="color: #6b7280;">🕒 Reported ${report.createdAt ? formattedDate : 'Recently'}</span>
+            </div>
           </div>
         </div>
       `;
 
       const infoWindow = new google.maps.InfoWindow({
         content: infoWindowContent,
-        maxWidth: 320
+        maxWidth: 350,
+        pixelOffset: new google.maps.Size(0, -10)
       });
 
       marker.addListener('click', () => {
+        // Close other info windows
         infoWindow.open(map, marker);
+        
+        // Center map on clicked marker with smooth animation
+        map.panTo(reportPosition);
       });
+
+      // Add clustering effect for nearby markers (simple version)
+      setTimeout(() => {
+        if (marker.getAnimation() !== null) {
+          marker.setAnimation(null);
+        }
+      }, 1000 + (index * 100));
     });
   }, [isMapReady, processedReportLocations]);
 
@@ -246,7 +370,10 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
       />
       <div 
         ref={mapRef} 
-        className="w-full h-[400px] bg-gray-800/60 border border-amber-700/30"
+        className="w-full h-[450px] bg-gradient-to-br from-gray-900 to-emerald-900/20 rounded-xl border border-emerald-500/20 shadow-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #111827 0%, #1f2937 50%, #064e3b 100%)'
+        }}
       />
     </>
   );

@@ -10,7 +10,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['var(--font-poppins)', 'sans-serif'],
         serif: ['Playfair Display', 'serif'],
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        'rock-salt': ['var(--font-rock-salt)', 'cursive'],
       },
       colors: {
         border: "hsl(var(--border))",

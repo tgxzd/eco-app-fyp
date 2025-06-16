@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import NavHeader from '@/components/ui/nav-header';
-import artwork from '../../../public/images/gambar.jpg';
+import Background from '@/components/Background';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
@@ -48,106 +48,184 @@ export default function YourReportPage() {
     fetchReports();
   }, []);
 
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'air-pollution':
+        return '🌫️';
+      case 'water-pollution':
+        return '💧';
+      case 'wildfire':
+        return '🔥';
+      default:
+        return '📋';
+    }
+  };
+
+  const formatCategoryName = (category: string) => {
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   return (
-    <div className="relative min-h-screen bg-[#121212]">
-      {/* Background Image */}
-      <div className="fixed inset-0 z-0">
-        <Image
-          src={artwork}
-          alt="Background artwork"
-          fill
-          className="object-cover opacity-60"
-          quality={100}
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
-      </div>
+    <>
+      <Background variant="web3-emerald" />
+      <div className="relative min-h-screen z-10">
+        <NavHeader />
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <header className="w-full py-4 md:py-8 bg-black/50 border-b border-amber-700/30">
-          <NavHeader />
-        </header>
-
-        <main className="flex-grow flex flex-col items-center p-4 md:p-8">
-          <div className="w-full max-w-4xl mx-auto">
-            <div className="mb-8 text-center">
-              <div className="mb-2 w-24 h-1 bg-amber-700 mx-auto"></div>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-wider uppercase text-amber-100">
-                Your Reports
-              </h1>
-              <div className="mt-2 w-24 h-1 bg-amber-700 mx-auto"></div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 max-w-6xl">
+          {/* Header Section */}
+          <div className="text-center mb-12 lg:mb-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/20 backdrop-blur-sm rounded-full mb-8 border border-emerald-500/30">
+              <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
             </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 lg:mb-8 tracking-tight">
+              Your Reports
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed px-4">
+              Track and manage your environmental reports
+            </p>
+          </div>
 
-            {isLoading && (
-              <div className="text-center text-amber-100 font-serif">
-                Loading your reports...
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="flex items-center space-x-3">
+                <svg className="animate-spin h-8 w-8 text-emerald-400" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="text-white font-light text-lg">Loading your reports...</span>
               </div>
-            )}
+            </div>
+          )}
 
-            {error && (
-              <div className="bg-red-900/30 border border-red-700 text-red-100 p-4 rounded-md mb-6 text-center font-serif">
-                <p>{error}</p>
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-300 p-6 lg:p-8 rounded-2xl backdrop-blur-sm mb-8 text-center">
+              <div className="flex items-center justify-center mb-4">
+                <svg className="h-8 w-8 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
               </div>
-            )}
+              <p className="font-light text-lg">{error}</p>
+            </div>
+          )}
 
-            {!isLoading && !error && reports.length === 0 && (
-              <div className="text-center text-amber-100/70 font-serif">
-                You haven&apos;t created any reports yet.
+          {/* Empty State */}
+          {!isLoading && !error && reports.length === 0 && (
+            <div className="text-center py-16">
+              <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 p-12 lg:p-16 max-w-2xl mx-auto">
+                <div className="w-24 h-24 bg-emerald-500/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-8 border border-emerald-500/30">
+                  <svg className="w-12 h-12 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-light text-white mb-4">No Reports Yet</h3>
+                <p className="text-white/60 font-light text-lg mb-8 leading-relaxed">
+                  You haven't created any environmental reports yet. Start documenting issues in your area.
+                </p>
+                <Link 
+                  href="/create-report"
+                  className="inline-flex items-center px-8 py-4 bg-emerald-500/20 text-emerald-300 font-light rounded-2xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50"
+                >
+                  <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create Your First Report
+                </Link>
               </div>
-            )}
+            </div>
+          )}
 
-            {!isLoading && !error && reports.length > 0 && (
-              <div className="space-y-6">
-                {reports.map((report) => (
-                  <Link href={`/your-report/${report.id}`} key={report.id} className="block group">
-                    <div className="bg-black/50 border border-amber-700/30 p-6 rounded-lg hover:bg-black/70 hover:border-amber-600 transition-all duration-300 shadow-lg hover:shadow-amber-700/20">
-                      <div className="flex flex-col md:flex-row justify-between md:items-center mb-2">
-                        <h2 className="text-xl font-serif text-amber-100 group-hover:text-amber-300 transition-colors duration-300 truncate">
-                          Report ID: {report.id}
-                        </h2>
-                      </div>
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-amber-100/80 font-serif text-sm capitalize">
-                          Category: {report.category.replace('-', ' ')}
+          {/* Reports Grid */}
+          {!isLoading && !error && reports.length > 0 && (
+            <div className="grid gap-6 lg:gap-8">
+              {reports.map((report) => (
+                <Link href={`/your-report/${report.id}`} key={report.id} className="block group">
+                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 sm:p-8 lg:p-10 rounded-3xl hover:bg-white/10 hover:border-white/20 transition-all duration-300 group">
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                      {/* Left Content */}
+                      <div className="flex-1 space-y-4">
+                        {/* Header */}
+                        <div className="flex items-center space-x-4">
+                          <div className="text-4xl">{getCategoryIcon(report.category)}</div>
+                          <div>
+                            <h2 className="text-xl sm:text-2xl font-light text-white group-hover:text-emerald-300 transition-colors duration-300">
+                              {formatCategoryName(report.category)}
+                            </h2>
+                            <p className="text-white/50 font-light text-sm">
+                              Report #{report.id.slice(-8).toUpperCase()}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-white/70 font-light leading-relaxed line-clamp-3">
+                          {report.description}
                         </p>
+
+                        {/* Location */}
+                        {report.location?.address && (
+                          <div className="flex items-center text-white/50 font-light text-sm">
+                            <svg className="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            {report.location.address}
+                          </div>
+                        )}
+
+                        {/* Date */}
+                        <div className="flex items-center text-white/50 font-light text-sm">
+                          <svg className="w-4 h-4 mr-2 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {new Date(report.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Right Content */}
+                      <div className="flex flex-col items-end space-y-4">
+                        {/* Status Badge */}
                         {report.status === 'resolved' ? (
-                          <span className="inline-flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs font-serif">
-                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <div className="inline-flex items-center px-4 py-2 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-light backdrop-blur-sm border border-emerald-500/30">
+                            <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
                             Resolved
-                          </span>
+                          </div>
                         ) : (
-                          <span className="inline-block px-2 py-1 bg-yellow-600 text-white rounded text-xs font-serif">
+                          <div className="inline-flex items-center px-4 py-2 bg-yellow-500/20 text-yellow-300 rounded-full text-sm font-light backdrop-blur-sm border border-yellow-500/30">
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             Pending
-                          </span>
+                          </div>
                         )}
-                      </div>
-                      <p className="text-amber-100/80 font-serif text-sm mb-3 line-clamp-2">
-                        {report.description}
-                      </p>
-                      {report.location?.address && (
-                        <p className="text-amber-100/60 font-serif text-xs mb-3">
-                          Location: {report.location.address}
-                        </p>
-                      )}
-                      <div className="flex justify-between items-center">
-                        <p className="text-amber-100/60 font-serif text-xs">
-                          Created: {new Date(report.createdAt).toLocaleDateString()}
-                        </p>
-                        <span className="text-amber-600 group-hover:text-amber-400 font-serif text-sm transition-colors duration-300">
-                          View Details →
-                        </span>
+
+                        {/* View Details Arrow */}
+                        <div className="flex items-center text-emerald-400 group-hover:text-emerald-300 font-light transition-colors duration-300">
+                          <span className="mr-2">View Details</span>
+                          <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </main>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

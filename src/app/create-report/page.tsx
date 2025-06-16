@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import NavHeader from "@/components/ui/nav-header";
+import Background from "@/components/Background";
 import { useState, useTransition, useRef, useCallback } from "react";
 import { createReport } from "./action";
 import Webcam from "react-webcam";
@@ -199,233 +200,348 @@ export default function CreateReport() {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
-      {/* Background Image */}
-      <div className="fixed inset-0 z-0">
-        <Image
-          src="/images/wallpaper2.jpg"
-          alt="Background"
-          fill
-          className="object-cover opacity-60"
-          quality={100}
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
-      </div>
-
-      {/* Content container */}
-      <div className="relative z-10 min-h-screen p-8">
+    <>
+      <Background variant="web3-emerald" />
+      <div className="min-h-screen relative z-10">
         <NavHeader />
         
-        <div className="max-w-3xl mx-auto mt-12">
-          <div className="text-center mb-8">
-            <div className="mb-2 w-24 h-1 bg-amber-700 mx-auto"></div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-wider uppercase text-amber-100">
-              Create Environmental Report
-            </h1>
-            <div className="mt-2 w-24 h-1 bg-amber-700 mx-auto"></div>
-          </div>
-          
-          {message && (
-            <div className={`border-l-2 border-amber-700 bg-black/40 p-4 mb-6 text-amber-100 font-serif text-center ${
-              messageType === "error" ? "border-red-600" : "border-amber-700"
-            }`}>
-              <p>{message}</p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20 max-w-5xl">
+          {/* Header Section */}
+          <div className="text-center mb-12 lg:mb-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/20 backdrop-blur-sm rounded-full mb-8 border border-emerald-500/30">
+              <svg className="w-10 h-10 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
             </div>
-          )}
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-6 lg:mb-8 tracking-tight">
+              Create Report
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl text-white/70 max-w-3xl mx-auto font-light leading-relaxed px-4">
+              Document environmental issues and contribute to our understanding of environmental challenges
+            </p>
+          </div>
 
-          {/* Show category banner if selected */}
-          {selectedCategory && (
-            <div className="mb-6">
-              <div className="w-full overflow-hidden rounded-lg border-2 border-amber-700/50">
-                <div className="bg-black/40 p-8 text-center">
-                  <div className="text-[100px] mb-4 animate-fade-in">
-                    {getCategoryIcon(selectedCategory)}
-                  </div>
-                  <div className="font-serif text-amber-100">
-                    <p className="text-lg uppercase tracking-widest mb-2">Detected Category</p>
-                    <h2 className="text-4xl font-bold mb-4 text-amber-500">
-                      {categoryDisplayNames[selectedCategory as keyof typeof categoryDisplayNames]}
-                    </h2>
-                    <div className="w-24 h-1 bg-amber-700 mx-auto mb-4"></div>
-                    {!showReportForm && (
-                      <button
-                        onClick={() => setShowReportForm(true)}
-                        className="mt-2 px-8 py-3 border-2 border-amber-700 text-amber-100 hover:bg-amber-700/20 transition-all duration-300 uppercase tracking-widest font-serif"
-                      >
-                        Continue with this category
-                      </button>
-                    )}
-                  </div>
+          {/* Alert Messages */}
+          {message && (
+            <div className={`mb-8 lg:mb-16 mx-4 sm:mx-0 p-6 lg:p-8 rounded-2xl backdrop-blur-sm border ${
+              messageType === "error" 
+                ? "bg-red-500/10 border-red-500/30 text-red-300" 
+                : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+            }`}>
+              <div className="flex items-center">
+                <div className="flex-shrink-0 mr-4">
+                  {messageType === "error" ? (
+                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  )}
                 </div>
+                <p className="font-medium text-sm sm:text-base">{message}</p>
               </div>
             </div>
           )}
-          
-          {!showReportForm ? (
-            <div className="bg-black/40 border-t-2 border-b-2 border-amber-700/50 p-6 md:p-8">
-              <h2 className="font-serif text-xl text-amber-100 mb-6 text-center">
-                Describe the Environmental Issue
-              </h2>
-              
-              <form onSubmit={handleAISubmit}>
-                <div className="mb-6">
-                  <textarea
-                    value={userPrompt}
-                    onChange={(e) => setUserPrompt(e.target.value)}
-                    rows={6}
-                    className="w-full px-4 py-3 bg-black/30 border-0 border-b-2 border-amber-700/70 text-amber-100 placeholder-amber-100/50 focus:border-amber-700 focus:outline-none focus:ring-0 font-serif"
-                    placeholder="Describe what you observe about the environmental issue..."
-                    required
-                  />
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isProcessingAI}
-                  className="w-full px-8 py-3 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest"
-                >
-                  {isProcessingAI ? "Processing..." : "Analyze Description"}
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="bg-black/40 border-t-2 border-b-2 border-amber-700/50 p-6 md:p-8">
-              <button 
-                onClick={handleBack}
-                className="mb-4 text-amber-700 font-serif flex items-center hover:text-amber-500 transition-colors"
-              >
-                ← Back
-              </button>
-              
-              <h2 className="font-serif text-xl text-amber-100 mb-6">
-                Add Details to Your Report
-              </h2>
-              
-              <form action={handleSubmit} id="report-form">
-                {/* Location Information Section */}
-                <div className="mb-6">
-                  <div className="bg-black/30 border border-amber-700/50 p-4 rounded">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-amber-100 font-serif">Location Information</h3>
-                      <button
-                        type="button"
-                        onClick={getCurrentLocation}
-                        className="px-3 py-1 bg-amber-700/70 text-amber-100 font-serif text-sm hover:bg-amber-700 transition-colors"
-                        disabled={isLoadingLocation}
-                      >
-                        {isLoadingLocation ? "Getting location..." : "Refresh Location"}
-                      </button>
-                    </div>
-                    
-                    {location ? (
-                      <div className="text-amber-100 font-serif text-sm">
-                        <p>Latitude: {location.latitude}</p>
-                        <p>Longitude: {location.longitude}</p>
-                        <p>Address: {location.address}</p>
-                      </div>
-                    ) : (
-                      <p className="text-amber-100/70 font-serif text-sm">
-                        {isLoadingLocation ? "Fetching location..." : "No location data available"}
-                      </p>
-                    )}
-                  </div>
-                </div>
 
-                {/* Image Upload Section */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-amber-100 font-serif mb-2">
-                    Add Image Evidence
-                  </label>
-                  
-                  {showWebcam ? (
-                    <div className="border-2 border-amber-700/50">
-                      <Webcam
-                        audio={false}
-                        height={400}
-                        screenshotFormat="image/jpeg"
-                        width="100%"
-                        videoConstraints={{
-                          width: 640,
-                          height: 480,
-                          facingMode: "environment"
-                        }}
-                        ref={webcamRef}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between p-4 bg-black/70">
-                        <button
-                          type="button"
-                          onClick={() => setShowWebcam(false)}
-                          className="px-4 py-2 bg-gray-800 text-amber-100 font-serif"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleCapture}
-                          className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
-                        >
-                          Capture
-                        </button>
-                      </div>
-                    </div>
-                  ) : image ? (
-                    <div className="relative border-2 border-amber-700/50">
-                      <Image 
-                        src={image} 
-                        alt="Report evidence" 
-                        width={500} 
-                        height={300}
-                        className="w-full h-auto max-h-[400px] object-contain bg-black/50"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setImage(null)}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-amber-100 flex items-center justify-center hover:bg-black/80"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center mb-4">
-                      <div className="border-2 border-dashed border-amber-700/50 p-8 w-full flex flex-col items-center">
-                        <p className="text-amber-100 font-serif mb-4">Upload an image or take a photo</p>
-                        <div className="flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setShowWebcam(true)}
-                            className="px-4 py-2 bg-amber-700 text-amber-100 font-serif"
-                          >
-                            Open Camera
-                          </button>
-                          <label className="px-4 py-2 bg-amber-700 text-amber-100 font-serif cursor-pointer">
-                            Upload Image
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleFileUpload}
-                              className="hidden"
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+          {/* Category Detection Banner */}
+          {selectedCategory && (
+            <div className="mb-8 lg:mb-16 mx-4 sm:mx-0">
+              <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 px-6 sm:px-8 lg:px-12 py-8 lg:py-12 text-center">
+                  <div className="text-5xl sm:text-6xl lg:text-7xl mb-4 lg:mb-6">{getCategoryIcon(selectedCategory)}</div>
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white mb-3 lg:mb-4">
+                    {categoryDisplayNames[selectedCategory as keyof typeof categoryDisplayNames]}
+                  </h2>
+                  <p className="text-white/60 font-light text-sm sm:text-base lg:text-lg">Category detected from your description</p>
                 </div>
-                
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="w-full px-8 py-3 bg-transparent text-amber-100 font-serif border-2 border-amber-700 hover:bg-amber-700/20 transition-colors duration-300 uppercase tracking-widest"
-                >
-                  {isPending ? "Creating Report..." : "Create Report"}
-                </button>
-              </form>
+                {!showReportForm && (
+                  <div className="p-6 sm:p-8 lg:p-12 text-center">
+                    <button
+                      onClick={() => setShowReportForm(true)}
+                      className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 bg-emerald-500/20 text-emerald-300 font-light rounded-2xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 text-sm sm:text-base"
+                    >
+                      Continue with this category
+                      <svg className="ml-2 sm:ml-3 h-4 sm:h-5 w-4 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
+
+          {/* Main Content */}
+          <div className="bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 mx-4 sm:mx-0">
+            {!showReportForm ? (
+              /* Description Form */
+              <div className="p-6 sm:p-8 lg:p-16">
+                <div className="max-w-3xl mx-auto">
+                  <div className="text-center mb-8 lg:mb-16">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white mb-4 lg:mb-6">
+                      Describe the Environmental Issue
+                    </h2>
+                    <p className="text-white/60 font-light text-base sm:text-lg lg:text-xl leading-relaxed px-4">
+                      Provide a detailed description of what you've observed
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={handleAISubmit} className="space-y-6 lg:space-y-10">
+                    <div>
+                      <label className="block text-base sm:text-lg lg:text-xl font-light text-white/80 mb-4 lg:mb-6">
+                        Issue Description
+                      </label>
+                      <textarea
+                        value={userPrompt}
+                        onChange={(e) => setUserPrompt(e.target.value)}
+                        rows={6}
+                        className="w-full px-4 sm:px-6 py-3 sm:py-4 lg:py-5 bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all duration-300 resize-none text-white placeholder-white/40 font-light text-sm sm:text-base"
+                        placeholder="Describe what you observe about the environmental issue..."
+                        required
+                      />
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={isProcessingAI || !userPrompt.trim()}
+                      className="w-full flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 lg:py-5 bg-emerald-500/20 text-emerald-300 font-light rounded-2xl hover:bg-emerald-500/30 disabled:bg-white/5 disabled:text-white/30 disabled:cursor-not-allowed transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 disabled:border-white/10 text-sm sm:text-base lg:text-lg"
+                    >
+                      {isProcessingAI ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          Analyze Description
+                          <svg className="ml-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : (
+              /* Report Details Form */
+              <div className="p-6 sm:p-8 lg:p-16">
+                <div className="flex items-center justify-between mb-8 lg:mb-16">
+                  <button 
+                    onClick={handleBack}
+                    className="inline-flex items-center text-white/60 hover:text-white transition-colors font-light text-sm sm:text-base"
+                  >
+                    <svg className="mr-2 h-4 sm:h-5 w-4 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back to description
+                  </button>
+                  <span className="text-white/40 font-light text-xs sm:text-sm">Step 2 of 2</span>
+                </div>
+
+                <div className="max-w-3xl mx-auto">
+                  <div className="text-center mb-8 lg:mb-16">
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-light text-white mb-4 lg:mb-6">
+                      Complete Your Report
+                    </h2>
+                    <p className="text-white/60 font-light text-base sm:text-lg lg:text-xl leading-relaxed px-4">
+                      Add location details and photographic evidence
+                    </p>
+                  </div>
+
+                  <form action={handleSubmit} className="space-y-8 lg:space-y-12">
+                    {/* Location Section */}
+                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 lg:p-10 border border-white/10">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 lg:mb-8 gap-4">
+                        <h3 className="text-lg sm:text-xl lg:text-2xl font-light text-white flex items-center">
+                          <svg className="mr-2 sm:mr-3 h-5 sm:h-6 w-5 sm:w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          Location Information
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={getCurrentLocation}
+                          disabled={isLoadingLocation}
+                          className="inline-flex items-center px-3 sm:px-4 py-2 text-xs sm:text-sm bg-emerald-500/20 text-emerald-300 rounded-lg hover:bg-emerald-500/30 disabled:bg-white/5 disabled:text-white/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 disabled:border-white/10 font-light whitespace-nowrap"
+                        >
+                          {isLoadingLocation ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Getting...
+                            </>
+                          ) : (
+                            <>
+                              <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              Refresh
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      
+                      {location ? (
+                        <div className="space-y-3 text-white/70 font-light">
+                          <div className="flex justify-between py-2">
+                            <span>Latitude:</span>
+                            <span className="text-white">{location.latitude.toFixed(6)}</span>
+                          </div>
+                          <div className="flex justify-between py-2">
+                            <span>Longitude:</span>
+                            <span className="text-white">{location.longitude.toFixed(6)}</span>
+                          </div>
+                          <div className="pt-4 border-t border-white/10">
+                            <span className="block mb-2">Address:</span>
+                            <p className="text-white leading-relaxed">{location.address}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <svg className="mx-auto h-12 w-12 text-white/30 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <p className="text-white/50 font-light">
+                            {isLoadingLocation ? "Fetching location..." : "Click 'Refresh' to get your current location"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image Upload Section */}
+                    <div>
+                      <label className="block text-lg sm:text-xl lg:text-2xl font-light text-white mb-4 lg:mb-8">
+                        <svg className="inline mr-2 sm:mr-3 h-5 sm:h-6 w-5 sm:w-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Photo Evidence
+                      </label>
+                      
+                      {showWebcam ? (
+                        <div className="bg-black rounded-2xl overflow-hidden border border-white/20">
+                          <Webcam
+                            audio={false}
+                            height={400}
+                            screenshotFormat="image/jpeg"
+                            width="100%"
+                            videoConstraints={{
+                              width: 640,
+                              height: 480,
+                              facingMode: "environment"
+                            }}
+                            ref={webcamRef}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between p-6 bg-black/50 backdrop-blur-sm">
+                            <button
+                              type="button"
+                              onClick={() => setShowWebcam(false)}
+                              className="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/20 font-light"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleCapture}
+                              className="px-6 py-3 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 font-light"
+                            >
+                              Capture Photo
+                            </button>
+                          </div>
+                        </div>
+                      ) : image ? (
+                        <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10">
+                          <Image 
+                            src={image} 
+                            alt="Report evidence" 
+                            width={500} 
+                            height={300}
+                            className="w-full h-auto max-h-96 object-contain"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setImage(null)}
+                            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-all duration-300 backdrop-blur-sm"
+                          >
+                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-white/20 rounded-2xl p-8 sm:p-12 lg:p-16 text-center hover:border-emerald-500/50 transition-all duration-300 bg-white/5 backdrop-blur-sm">
+                          <svg className="mx-auto h-12 sm:h-16 lg:h-20 w-12 sm:w-16 lg:w-20 text-white/30 mb-4 sm:mb-6 lg:mb-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <p className="text-white/60 mb-6 lg:mb-8 font-light text-base sm:text-lg lg:text-xl px-4">Add a photo to support your report</p>
+                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                            <button
+                              type="button"
+                              onClick={() => setShowWebcam(true)}
+                              className="inline-flex items-center px-6 py-3 bg-emerald-500/20 text-emerald-300 rounded-xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 font-light"
+                            >
+                              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              Take Photo
+                            </button>
+                            <label className="inline-flex items-center px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-300 cursor-pointer backdrop-blur-sm border border-white/20 hover:border-white/30 font-light">
+                              <svg className="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              </svg>
+                              Upload Image
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="w-full flex items-center justify-center px-6 sm:px-8 py-4 sm:py-5 lg:py-6 bg-emerald-500/20 text-emerald-300 font-light rounded-2xl hover:bg-emerald-500/30 disabled:bg-white/5 disabled:text-white/30 disabled:cursor-not-allowed transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 disabled:border-white/10 text-base sm:text-lg lg:text-xl"
+                    >
+                      {isPending ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Creating Report...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="mr-3 h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Submit Report
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
