@@ -69,12 +69,12 @@ function NavHeader() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-6 py-8">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Desktop Navigation */}
       <div className="flex items-center justify-between">
         {/* Logo/Brand */}
-        <Link href="/dashboard" className="text-xl font-light text-white">
-          EnviroConnect
+        <Link href="/dashboard" className="text-lg sm:text-xl font-light text-white">
+          <span className="text-white">Enviro</span><span className="text-emerald-400">Connect</span>
         </Link>
 
         {/* Desktop Menu */}

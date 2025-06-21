@@ -370,7 +370,7 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
       />
       <div 
         ref={mapRef} 
-        className="w-full h-[450px] bg-gradient-to-br from-gray-900 to-emerald-900/20 rounded-xl border border-emerald-500/20 shadow-2xl overflow-hidden"
+        className="w-full h-[280px] sm:h-[350px] md:h-[400px] lg:h-[450px] xl:h-[500px] bg-gradient-to-br from-gray-900 to-emerald-900/20 rounded-lg sm:rounded-xl lg:rounded-2xl border border-emerald-500/20 shadow-2xl overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #111827 0%, #1f2937 50%, #064e3b 100%)'
         }}

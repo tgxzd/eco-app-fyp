@@ -120,19 +120,19 @@ export default function ManageProfilePage() {
                 <div className="h-4 sm:h-6 w-px bg-white/20"></div>
                 <h1 className="text-lg sm:text-xl lg:text-2xl font-light text-white">
                   Manage Profile
-                </h1>
+            </h1>
               </div>
 
               {/* Back Button */}
-              <button
-                onClick={() => router.push('/environmental-organization/dashboard')}
+            <button
+              onClick={() => router.push('/environmental-organization/dashboard')}
                 className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-light rounded-xl sm:rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/30 text-sm sm:text-base"
-              >
+            >
                 <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Back to Dashboard
-              </button>
+              Back to Dashboard
+            </button>
             </div>
           </div>
         </header>
@@ -155,7 +155,7 @@ export default function ManageProfilePage() {
           </div>
 
           {/* Alert Messages */}
-          {error && (
+            {error && (
             <div className="mb-6 sm:mb-8 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm border bg-red-500/10 border-red-500/30 text-red-300 shadow-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0 mr-2 sm:mr-3">
@@ -165,10 +165,10 @@ export default function ManageProfilePage() {
                 </div>
                 <p className="font-medium text-xs sm:text-sm">{error}</p>
               </div>
-            </div>
-          )}
-          
-          {success && (
+              </div>
+            )}
+            
+            {success && (
             <div className="mb-6 sm:mb-8 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm border bg-green-500/10 border-green-500/30 text-green-300 shadow-lg">
               <div className="flex items-center">
                 <div className="flex-shrink-0 mr-2 sm:mr-3">
@@ -178,8 +178,8 @@ export default function ManageProfilePage() {
                 </div>
                 <p className="font-medium text-xs sm:text-sm">{success}</p>
               </div>
-            </div>
-          )}
+              </div>
+            )}
 
           {/* Profile Card */}
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl shadow-black/20 overflow-hidden">
@@ -203,91 +203,91 @@ export default function ManageProfilePage() {
                       <p className="text-white/60 font-light text-sm sm:text-base">Update your organization details</p>
                     </div>
                     {!isEditing && (
-                      <button
+                  <button
                         onClick={() => setIsEditing(true)}
                         className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-emerald-500/20 text-emerald-300 font-light rounded-xl sm:rounded-2xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 text-sm sm:text-base"
-                      >
+                  >
                         <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         Edit Profile
-                      </button>
+                  </button>
                     )}
                   </div>
                 </div>
 
                 {/* Form Section */}
                 <div className="px-6 sm:px-8 lg:px-10 py-6 sm:py-8">
-                  {isEditing ? (
+                {isEditing ? (
                     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                        <div>
+                    <div>
                           <label htmlFor="organizationName" className="block text-sm font-medium text-white/80 mb-2">
                             Organization Name *
-                          </label>
-                          <input
-                            type="text"
-                            id="organizationName"
-                            name="organizationName"
-                            defaultValue={organizationInfo.organizationName}
-                            required
+                      </label>
+                      <input
+                        type="text"
+                        id="organizationName"
+                        name="organizationName"
+                        defaultValue={organizationInfo.organizationName}
+                        required
                             className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 backdrop-blur-sm transition-all duration-300 text-sm sm:text-base"
                             placeholder="Enter organization name"
-                          />
-                        </div>
+                      />
+                    </div>
 
-                        <div>
+                    <div>
                           <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
                             Email Address *
-                          </label>
-                          <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            defaultValue={organizationInfo.email}
-                            required
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        defaultValue={organizationInfo.email}
+                        required
                             className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 backdrop-blur-sm transition-all duration-300 text-sm sm:text-base"
                             placeholder="Enter email address"
-                          />
-                        </div>
+                      />
+                    </div>
 
-                        <div>
+                    <div>
                           <label htmlFor="phoneNumber" className="block text-sm font-medium text-white/80 mb-2">
                             Phone Number *
-                          </label>
-                          <input
-                            type="tel"
-                            id="phoneNumber"
-                            name="phoneNumber"
-                            defaultValue={organizationInfo.phoneNumber}
-                            required
+                      </label>
+                      <input
+                        type="tel"
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        defaultValue={organizationInfo.phoneNumber}
+                        required
                             className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 backdrop-blur-sm transition-all duration-300 text-sm sm:text-base"
                             placeholder="Enter phone number"
-                          />
-                        </div>
+                      />
+                    </div>
 
-                        <div>
+                    <div>
                           <label htmlFor="category" className="block text-sm font-medium text-white/80 mb-2">
                             Focus Area *
-                          </label>
-                          <select
-                            id="category"
-                            name="category"
-                            defaultValue={organizationInfo.category || ''}
-                            required
+                      </label>
+                      <select
+                        id="category"
+                        name="category"
+                        defaultValue={organizationInfo.category || ''}
+                        required
                             className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 backdrop-blur-sm transition-all duration-300 text-sm sm:text-base"
                           >
                             <option value="" disabled className="bg-gray-900">Select focus area</option>
                             <option value="air pollution" className="bg-gray-900">🌫️ Air Pollution</option>
                             <option value="water pollution" className="bg-gray-900">💧 Water Pollution</option>
                             <option value="wildfire" className="bg-gray-900">🔥 Wildfire</option>
-                          </select>
+                      </select>
                         </div>
-                      </div>
+                    </div>
 
                       <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 sm:pt-6">
-                        <button
-                          type="submit"
+                      <button
+                        type="submit"
                           disabled={isSaving}
                           className="w-full sm:flex-1 flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-emerald-500/20 text-emerald-300 font-light rounded-xl sm:rounded-2xl hover:bg-emerald-500/30 disabled:bg-white/5 disabled:text-white/30 disabled:cursor-not-allowed transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 text-sm sm:text-base"
                         >
@@ -304,7 +304,7 @@ export default function ManageProfilePage() {
                               <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
                               </svg>
-                              Save Changes
+                        Save Changes
                             </>
                           )}
                         </button>
@@ -321,10 +321,10 @@ export default function ManageProfilePage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                           Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
+                      </button>
+                    </div>
+                  </form>
+                ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                       <div className="space-y-2">
                         <label className="block text-xs sm:text-sm font-medium text-white/60">Organization Name</label>
@@ -345,15 +345,15 @@ export default function ManageProfilePage() {
                           <span className="text-base sm:text-lg text-white font-light">
                             {organizationInfo.category || 'Not specified'}
                           </span>
-                        </div>
-                      </div>
+                    </div>
+                    </div>
                       <div className="space-y-2 lg:col-span-2">
                         <label className="block text-xs sm:text-sm font-medium text-white/60">Organization ID</label>
                         <p className="text-sm sm:text-base text-white/50 font-light font-mono break-all">{organizationInfo.id}</p>
-                      </div>
+                    </div>
                     </div>
                   )}
-                </div>
+                  </div>
               </>
             ) : (
               <div className="text-center py-12 sm:py-16">

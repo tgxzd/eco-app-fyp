@@ -24,7 +24,7 @@ export default async function DashboardPage() {
         
         {/* Content */}
         <div className="relative z-10 min-h-screen flex flex-col">
-          <header className="w-full py-4 md:py-6 bg-black/40 backdrop-blur-md border-b border-emerald-500/20">
+          <header className="w-full py-3 sm:py-4 lg:py-6 bg-black/40 backdrop-blur-md border-b border-emerald-500/20">
             <NavHeader/>
           </header>
           

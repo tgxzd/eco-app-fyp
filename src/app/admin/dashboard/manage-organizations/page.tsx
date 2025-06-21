@@ -137,7 +137,7 @@ export default function ManageOrganizations() {
             <div className="min-h-screen relative z-10">
                 {/* Header */}
                 <header className="bg-white/10 backdrop-blur-xl border-b border-white/20 shadow-lg">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center py-4 sm:py-6 space-y-4 lg:space-y-0">
                             {/* Logo and Title */}
                             <div className="flex items-center space-x-3 sm:space-x-4">
@@ -162,25 +162,25 @@ export default function ManageOrganizations() {
 
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
-                                <button
-                                    onClick={() => router.push('/admin/dashboard/manage-organizations/new')}
+                        <button
+                            onClick={() => router.push('/admin/dashboard/manage-organizations/new')}
                                     className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-emerald-500/20 text-emerald-300 font-light rounded-xl sm:rounded-2xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 text-sm sm:text-base"
-                                >
+                        >
                                     <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                                     </svg>
-                                    Add New Organization
-                                </button>
-                                <button
-                                    onClick={() => router.push('/admin/dashboard')}
+                            Add New Organization
+                        </button>
+                        <button
+                            onClick={() => router.push('/admin/dashboard')}
                                     className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-light rounded-xl sm:rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:border-white/30 text-sm sm:text-base"
-                                >
+                        >
                                     <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                                     </svg>
-                                    Back to Dashboard
-                                </button>
-                            </div>
+                            Back to Dashboard
+                        </button>
+                    </div>
                         </div>
                     </div>
                 </header>
@@ -200,7 +200,7 @@ export default function ManageOrganizations() {
                         <p className="text-base sm:text-lg text-white/70 font-light leading-relaxed max-w-2xl mx-auto px-4">
                             Manage environmental organizations and their operations across the platform
                         </p>
-                    </div>
+                </div>
 
                     {/* Organizations Table/Cards */}
                     <div className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl shadow-black/20 overflow-hidden">
@@ -235,8 +235,8 @@ export default function ManageOrganizations() {
                                                 <th className="px-6 py-4 text-left text-sm font-medium text-white/90">Category</th>
                                                 <th className="px-6 py-4 text-left text-sm font-medium text-white/90">Created</th>
                                                 <th className="px-6 py-4 text-right text-sm font-medium text-white/90">Actions</th>
-                                            </tr>
-                                        </thead>
+                            </tr>
+                        </thead>
                                         <tbody className="divide-y divide-white/5">
                                             {organizations.map((org) => (
                                                 <tr key={org.id} className="hover:bg-white/5 transition-colors">
@@ -249,14 +249,14 @@ export default function ManageOrganizations() {
                                                                 {org.organizationName}
                                                             </Link>
                                                             <div className="text-white/50 text-sm font-mono mt-1">{org.id}</div>
-                                                        </div>
-                                                    </td>
+                                        </div>
+                                    </td>
                                                     <td className="px-6 py-4">
                                                         <div>
                                                             <div className="text-white/80 font-light">{org.email}</div>
                                                             <div className="text-white/60 font-light text-sm">{org.phoneNumber}</div>
-                                                        </div>
-                                                    </td>
+                                        </div>
+                                    </td>
                                                     <td className="px-6 py-4">
                                                         <span className="inline-flex items-center px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
                                                             <span className="mr-2">{getCategoryIcon(org.category)}</span>
@@ -270,28 +270,28 @@ export default function ManageOrganizations() {
                                                                 month: 'short',
                                                                 day: 'numeric'
                                                             })}
-                                                        </div>
-                                                    </td>
+                                        </div>
+                                    </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end space-x-3">
-                                                            <Link 
+                                        <Link 
                                                                 href={`/admin/dashboard/manage-organizations/${org.id}`}
                                                                 className="text-emerald-300 hover:text-emerald-200 font-light transition-colors"
-                                                            >
-                                                                View
-                                                            </Link>
-                                                            <button 
+                                        >
+                                            View
+                                        </Link>
+                                        <button 
                                                                 onClick={() => handleDelete(org.id)}
                                                                 className="text-red-300 hover:text-red-200 font-light transition-colors"
-                                                            >
-                                                                Delete
-                                                            </button>
+                                        >
+                                            Delete
+                                        </button>
                                                         </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                                 </div>
 
                                 {/* Mobile Card View */}
@@ -354,10 +354,10 @@ export default function ManageOrganizations() {
                                             </div>
                                         </div>
                                     ))}
-                                </div>
+                        </div>
                             </>
-                        )}
-                    </div>
+                    )}
+                </div>
                 </main>
             </div>
         </>
