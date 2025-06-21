@@ -108,8 +108,7 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
         gestureHandling: 'cooperative',
         // Custom styling for controls
         zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_BOTTOM,
-          style: google.maps.ZoomControlStyle.SMALL
+          position: google.maps.ControlPosition.RIGHT_BOTTOM
         },
         fullscreenControlOptions: {
           position: google.maps.ControlPosition.RIGHT_TOP
@@ -138,7 +137,7 @@ export default function GoogleMap({ apiKey, reportLocations = [], initialLocatio
         });
 
         // Add pulsing circle around user location
-        const userCircle = new google.maps.Circle({
+        new google.maps.Circle({
           strokeColor: "#10b981",
           strokeOpacity: 0.6,
           strokeWeight: 2,

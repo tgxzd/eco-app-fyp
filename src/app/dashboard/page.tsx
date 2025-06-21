@@ -1,9 +1,6 @@
 import { requireAuth } from '@/lib/session';
 // import { redirect } from 'next/navigation';
-import Image from 'next/image';
 import NavHeader from '@/components/ui/nav-header';
-import Link from 'next/link';
-import MapWrapper from '@/components/MapWrapper';
 import LocationPermissionHandler from '@/components/LocationPermissionHandler';
 import { LocationProvider } from '@/contexts/LocationContext';
 import Background from '@/components/Background';

@@ -150,7 +150,7 @@ export default function ManageProfilePage() {
               Organization Profile
             </h2>
             <p className="text-base sm:text-lg text-white/70 font-light leading-relaxed max-w-2xl mx-auto px-4">
-              Manage your organization's information and settings
+              Manage your organization&apos;s information and settings
             </p>
           </div>
 

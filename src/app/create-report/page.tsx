@@ -284,7 +284,7 @@ export default function CreateReport() {
                       Describe the Environmental Issue
                     </h2>
                     <p className="text-white/60 font-light text-base sm:text-lg lg:text-xl leading-relaxed px-4">
-                      Provide a detailed description of what you've observed
+                      Provide a detailed description of what you&apos;ve observed
                     </p>
                   </div>
                   
@@ -412,7 +412,7 @@ export default function CreateReport() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                           <p className="text-white/50 font-light">
-                            {isLoadingLocation ? "Fetching location..." : "Click 'Refresh' to get your current location"}
+                            {isLoadingLocation ? "Fetching location..." : "Click &apos;Refresh&apos; to get your current location"}
                           </p>
                         </div>
                       )}

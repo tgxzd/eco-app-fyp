@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getOrganizationById, updateOrganization, deleteOrganization } from '../action';
 
@@ -25,11 +25,7 @@ export default function OrganizationDetails() {
     const [messageType, setMessageType] = useState<"success" | "error">("success");
     const [isEditing, setIsEditing] = useState(false);
 
-    useEffect(() => {
-        fetchOrganization();
-    }, []);
-
-    const fetchOrganization = async () => {
+    const fetchOrganization = useCallback(async () => {
         try {
             const result = await getOrganizationById(params.id as string);
 
@@ -45,7 +41,11 @@ export default function OrganizationDetails() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [params.id]);
+
+    useEffect(() => {
+        fetchOrganization();
+    }, [fetchOrganization]);
 
     const handleUpdate = async (formData: FormData) => {
         if (!organization) return;

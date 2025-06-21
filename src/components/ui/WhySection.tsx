@@ -167,7 +167,7 @@ const WhySection = ({ variant = 'dark' }: WhySectionProps) => {
             variants={fadeIn}
             className={`${subtextColor} text-lg max-w-3xl mx-auto font-poppins mt-8`}
           >
-            Here's how you can actually make a difference with just a few taps on your screen.
+            Here&apos;s how you can actually make a difference with just a few taps on your screen.
           </motion.p>
         </motion.div>
         

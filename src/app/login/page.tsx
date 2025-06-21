@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { handleLogin } from './action';
-import Image from 'next/image';
+
 import Background from '@/components/Background';
 import { motion } from 'framer-motion';
 

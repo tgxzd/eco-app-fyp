@@ -143,7 +143,7 @@ export default function LoginPage() {
 
                 <div className="text-center pt-3 sm:pt-4 border-t border-white/10">
                   <p className="text-white/60 font-light text-xs sm:text-sm">
-                    Don't have an account?{' '}
+                    Don&apos;t have an account?{' '}
                     <Link
                       href="/environmental-organization/register"
                       className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors duration-300"

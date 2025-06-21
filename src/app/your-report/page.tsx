@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+
 import NavHeader from '@/components/ui/nav-header';
 import Background from '@/components/Background';
 import { useEffect, useState } from 'react';
@@ -125,7 +125,7 @@ export default function YourReportPage() {
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-light text-white mb-4">No Reports Yet</h3>
                 <p className="text-white/60 font-light text-lg mb-8 leading-relaxed">
-                  You haven't created any environmental reports yet. Start documenting issues in your area.
+                  You haven&apos;t created any environmental reports yet. Start documenting issues in your area.
                 </p>
                 <Link 
                   href="/create-report"

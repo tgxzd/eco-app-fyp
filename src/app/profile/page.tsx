@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 import NavHeader from "@/components/ui/nav-header";
 import Background from "@/components/Background";

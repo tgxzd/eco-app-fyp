@@ -18,16 +18,7 @@ const DashboardContent = ({ mapsApiKey }: DashboardContentProps) => {
     }
   };
 
-  const stagger: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
+
 
   const mapVariants: Variants = {
     hidden: { opacity: 0, scale: 0.95 },

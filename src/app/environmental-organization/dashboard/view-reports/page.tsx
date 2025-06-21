@@ -193,7 +193,7 @@ export default function ViewReports() {
                                     </div>
                                     <h2 className="text-xl sm:text-2xl font-light text-white mb-3 sm:mb-4">No Reports Found</h2>
                                     <p className="text-white/60 font-light leading-relaxed text-sm sm:text-base px-4">
-                                        No reports have been submitted in your organization's focus area ({category}) yet.
+                                        No reports have been submitted in your organization&apos;s focus area ({category}) yet.
                                     </p>
                                     <p className="text-white/40 font-light text-xs sm:text-sm mt-4">
                                         Reports will appear here as they are submitted by users.

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+
 import NavHeader from '@/components/ui/nav-header';
 import Background from '@/components/Background';
 import { prisma } from '@/lib/prisma';
