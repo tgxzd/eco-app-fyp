@@ -1,13 +1,11 @@
 'use server';
 
-import { PrismaClient } from '@prisma/client';
 import { getCurrentUser } from '@/lib/session';
 import { hashPassword, comparePassword } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { sign } from 'jsonwebtoken';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const COOKIE_NAME = 'session_token';
 

@@ -2,9 +2,7 @@
 
 import { register } from '@/lib/auth';
 import { isValidEmail } from '@/app/utils';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function handleRegister(formData: FormData) {
   try {

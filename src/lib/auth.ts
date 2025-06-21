@@ -1,12 +1,10 @@
 import { verify, sign } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-
-const prisma = new PrismaClient();
+import { prisma } from './prisma';
 
 // Cookie and JWT configuration
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
