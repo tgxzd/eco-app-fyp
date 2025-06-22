@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Rock_Salt } from "next/font/google";
 import "../styles/globals.css";
+import Script from "next/script";
 
 const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
@@ -16,7 +17,15 @@ const rockSalt = Rock_Salt({
 
 export const metadata: Metadata = {
   title: "EnviroConnect",
-  description: "Jagalah Alam Sekitar",
+  description: "Your actions matters. Together, we take action for a cleaner planet.",
+  manifest: "/manifest.json",
+  themeColor: "#10B981",
+  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "EnviroConnect",
+  },
 };
 
 export default function RootLayout({
@@ -26,10 +35,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body
         className={`${poppins.variable} ${rockSalt.variable} font-sans antialiased`}
       >
         {children}
+        <Script src="/registerSW.js" strategy="lazyOnload" />
       </body>
     </html>
   );
