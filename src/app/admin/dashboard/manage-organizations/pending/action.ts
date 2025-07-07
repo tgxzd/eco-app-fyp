@@ -9,7 +9,6 @@ import {
   removePendingOrganization,
   updateOrganizationStatus
 } from '@/lib/pending-organizations';
-import type { PendingOrganization } from '@/lib/pending-organizations';
 
 // Get all pending organization applications
 export async function getPendingApplications() {
