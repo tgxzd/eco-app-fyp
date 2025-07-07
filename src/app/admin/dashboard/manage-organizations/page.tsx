@@ -163,6 +163,15 @@ export default function ManageOrganizations() {
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full lg:w-auto">
                         <button
+                            onClick={() => router.push('/admin/dashboard/manage-organizations/pending')}
+                                    className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-orange-500/20 text-orange-300 font-light rounded-xl sm:rounded-2xl hover:bg-orange-500/30 transition-all duration-300 backdrop-blur-sm border border-orange-500/30 hover:border-orange-500/50 text-sm sm:text-base"
+                        >
+                                    <svg className="mr-2 h-3 w-3 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                            Pending Applications
+                        </button>
+                        <button
                             onClick={() => router.push('/admin/dashboard/manage-organizations/new')}
                                     className="w-full sm:w-auto flex items-center justify-center px-3 sm:px-4 py-2 bg-emerald-500/20 text-emerald-300 font-light rounded-xl sm:rounded-2xl hover:bg-emerald-500/30 transition-all duration-300 backdrop-blur-sm border border-emerald-500/30 hover:border-emerald-500/50 text-sm sm:text-base"
                         >

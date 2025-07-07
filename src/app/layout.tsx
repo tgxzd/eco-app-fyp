@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Rock_Salt } from "next/font/google";
 import "../styles/globals.css";
 import Script from "next/script";
@@ -20,12 +20,18 @@ export const metadata: Metadata = {
   description: "Your actions matters. Together, we take action for a cleaner planet.",
   manifest: "/manifest.json",
   themeColor: "#10B981",
-  viewport: "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "EnviroConnect",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
 };
 
 export default function RootLayout({
