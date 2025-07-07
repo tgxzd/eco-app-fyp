@@ -28,6 +28,8 @@ model PendingOrganization {
   category        String
   submittedAt     DateTime  @default(now())
   status          String    @default("pending")
+
+  @@index([status])
 }
 
 model User {

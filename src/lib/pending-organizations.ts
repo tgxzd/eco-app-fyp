@@ -58,10 +58,11 @@ export async function getPendingOrganizations(): Promise<PendingOrganization[]> 
       where: { status: 'pending' }
     });
 
-    // Convert date to string for compatibility with interface
+    // Convert date to string for compatibility with interface and ensure status is properly typed
     return pendingOrgs.map(org => ({
       ...org,
-      submittedAt: org.submittedAt.toISOString()
+      submittedAt: org.submittedAt.toISOString(),
+      status: org.status as 'pending' | 'approved' | 'rejected'
     }));
   } catch (error) {
     console.error('Error getting pending organizations:', error);
@@ -79,7 +80,8 @@ export async function updateOrganizationStatus(id: string, status: 'approved' | 
 
     return {
       ...updatedOrg,
-      submittedAt: updatedOrg.submittedAt.toISOString()
+      submittedAt: updatedOrg.submittedAt.toISOString(),
+      status: updatedOrg.status as 'pending' | 'approved' | 'rejected'
     };
   } catch (error) {
     console.error('Error updating organization status:', error);
@@ -112,7 +114,8 @@ export async function getPendingOrganizationById(id: string): Promise<PendingOrg
 
     return {
       ...org,
-      submittedAt: org.submittedAt.toISOString()
+      submittedAt: org.submittedAt.toISOString(),
+      status: org.status as 'pending' | 'approved' | 'rejected'
     };
   } catch (error) {
     console.error('Error getting pending organization by ID:', error);
