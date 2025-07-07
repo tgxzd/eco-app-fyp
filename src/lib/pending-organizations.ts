@@ -11,6 +11,15 @@ export interface PendingOrganization {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+// Helper function to validate status
+function validateStatus(status: string): 'pending' | 'approved' | 'rejected' {
+  if (status === 'pending' || status === 'approved' || status === 'rejected') {
+    return status;
+  }
+  // Default fallback
+  return 'pending';
+}
+
 // Add a new pending organization
 export async function addPendingOrganization(organizationData: Omit<PendingOrganization, 'id' | 'submittedAt' | 'status'>): Promise<string> {
   try {
@@ -58,11 +67,16 @@ export async function getPendingOrganizations(): Promise<PendingOrganization[]> 
       where: { status: 'pending' }
     });
 
-    // Convert date to string for compatibility with interface and ensure status is properly typed
+    // Convert date to string for compatibility with interface and validate status
     return pendingOrgs.map(org => ({
-      ...org,
+      id: org.id,
+      organizationName: org.organizationName,
+      email: org.email,
+      phoneNumber: org.phoneNumber,
+      password: org.password,
+      category: org.category,
       submittedAt: org.submittedAt.toISOString(),
-      status: org.status as 'pending' | 'approved' | 'rejected'
+      status: validateStatus(org.status)
     }));
   } catch (error) {
     console.error('Error getting pending organizations:', error);
@@ -79,9 +93,14 @@ export async function updateOrganizationStatus(id: string, status: 'approved' | 
     });
 
     return {
-      ...updatedOrg,
+      id: updatedOrg.id,
+      organizationName: updatedOrg.organizationName,
+      email: updatedOrg.email,
+      phoneNumber: updatedOrg.phoneNumber,
+      password: updatedOrg.password,
+      category: updatedOrg.category,
       submittedAt: updatedOrg.submittedAt.toISOString(),
-      status: updatedOrg.status as 'pending' | 'approved' | 'rejected'
+      status: validateStatus(updatedOrg.status)
     };
   } catch (error) {
     console.error('Error updating organization status:', error);
@@ -113,9 +132,14 @@ export async function getPendingOrganizationById(id: string): Promise<PendingOrg
     }
 
     return {
-      ...org,
+      id: org.id,
+      organizationName: org.organizationName,
+      email: org.email,
+      phoneNumber: org.phoneNumber,
+      password: org.password,
+      category: org.category,
       submittedAt: org.submittedAt.toISOString(),
-      status: org.status as 'pending' | 'approved' | 'rejected'
+      status: validateStatus(org.status)
     };
   } catch (error) {
     console.error('Error getting pending organization by ID:', error);
