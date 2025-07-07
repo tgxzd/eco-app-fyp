@@ -19,6 +19,17 @@ model Organization {
   isApproved       Boolean  @default(false)
 }
 
+model PendingOrganization {
+  id              String    @id @default(uuid())
+  organizationName String
+  email           String    @unique
+  phoneNumber     String
+  password        String
+  category        String
+  submittedAt     DateTime  @default(now())
+  status          String    @default("pending")
+}
+
 model User {
   user_id   String     @id @default(uuid())
   email     String     @unique

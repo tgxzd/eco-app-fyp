@@ -1,6 +1,4 @@
-import { writeFile, readFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
+import { prisma } from './prisma';
 
 export interface PendingOrganization {
   id: string;
@@ -13,97 +11,111 @@ export interface PendingOrganization {
   status: 'pending' | 'approved' | 'rejected';
 }
 
-const PENDING_FILE_PATH = path.join(process.cwd(), 'data', 'pending-organizations.json');
-
-// Ensure data directory exists
-async function ensureDataDir() {
-  const dataDir = path.dirname(PENDING_FILE_PATH);
-  if (!existsSync(dataDir)) {
-    await mkdir(dataDir, { recursive: true });
-  }
-}
-
-// Read pending organizations from file
-export async function readPendingOrganizations(): Promise<PendingOrganization[]> {
+// Add a new pending organization
+export async function addPendingOrganization(organizationData: Omit<PendingOrganization, 'id' | 'submittedAt' | 'status'>): Promise<string> {
   try {
-    await ensureDataDir();
-    
-    if (!existsSync(PENDING_FILE_PATH)) {
-      return [];
+    // Check if email already exists in pending applications
+    const existingPending = await prisma.pendingOrganization.findUnique({
+      where: { email: organizationData.email }
+    });
+
+    if (existingPending) {
+      throw new Error('An application with this email is already pending or has been rejected');
     }
-    
-    const data = await readFile(PENDING_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading pending organizations:', error);
-    return [];
-  }
-}
 
-// Write pending organizations to file
-export async function writePendingOrganizations(organizations: PendingOrganization[]): Promise<void> {
-  try {
-    await ensureDataDir();
-    await writeFile(PENDING_FILE_PATH, JSON.stringify(organizations, null, 2));
+    // Check if email already exists in approved organizations
+    const existingOrganization = await prisma.organization.findUnique({
+      where: { email: organizationData.email }
+    });
+
+    if (existingOrganization) {
+      throw new Error('An organization with this email already exists');
+    }
+
+    // Create a new pending organization
+    const newOrganization = await prisma.pendingOrganization.create({
+      data: {
+        organizationName: organizationData.organizationName,
+        email: organizationData.email,
+        phoneNumber: organizationData.phoneNumber,
+        password: organizationData.password,
+        category: organizationData.category,
+        status: 'pending'
+      }
+    });
+
+    return newOrganization.id;
   } catch (error) {
-    console.error('Error writing pending organizations:', error);
+    console.error('Error adding pending organization:', error);
     throw error;
   }
 }
 
-// Add a new pending organization
-export async function addPendingOrganization(organizationData: Omit<PendingOrganization, 'id' | 'submittedAt' | 'status'>): Promise<string> {
-  const organizations = await readPendingOrganizations();
-  
-  // Check if email already exists in pending or rejected applications
-  const existingPending = organizations.find(org => org.email === organizationData.email && org.status !== 'approved');
-  if (existingPending) {
-    throw new Error('An application with this email is already pending or has been rejected');
-  }
-  
-  const newOrganization: PendingOrganization = {
-    id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-    ...organizationData,
-    submittedAt: new Date().toISOString(),
-    status: 'pending'
-  };
-  
-  organizations.push(newOrganization);
-  await writePendingOrganizations(organizations);
-  
-  return newOrganization.id;
-}
-
 // Get pending organizations (only those with status 'pending')
 export async function getPendingOrganizations(): Promise<PendingOrganization[]> {
-  const organizations = await readPendingOrganizations();
-  return organizations.filter(org => org.status === 'pending');
+  try {
+    const pendingOrgs = await prisma.pendingOrganization.findMany({
+      where: { status: 'pending' }
+    });
+
+    // Convert date to string for compatibility with interface
+    return pendingOrgs.map(org => ({
+      ...org,
+      submittedAt: org.submittedAt.toISOString()
+    }));
+  } catch (error) {
+    console.error('Error getting pending organizations:', error);
+    return [];
+  }
 }
 
 // Update organization status
 export async function updateOrganizationStatus(id: string, status: 'approved' | 'rejected'): Promise<PendingOrganization | null> {
-  const organizations = await readPendingOrganizations();
-  const orgIndex = organizations.findIndex(org => org.id === id);
-  
-  if (orgIndex === -1) {
+  try {
+    const updatedOrg = await prisma.pendingOrganization.update({
+      where: { id },
+      data: { status }
+    });
+
+    return {
+      ...updatedOrg,
+      submittedAt: updatedOrg.submittedAt.toISOString()
+    };
+  } catch (error) {
+    console.error('Error updating organization status:', error);
     return null;
   }
-  
-  organizations[orgIndex].status = status;
-  await writePendingOrganizations(organizations);
-  
-  return organizations[orgIndex];
 }
 
 // Remove organization from pending list (used after successful approval and DB creation)
 export async function removePendingOrganization(id: string): Promise<void> {
-  const organizations = await readPendingOrganizations();
-  const filteredOrganizations = organizations.filter(org => org.id !== id);
-  await writePendingOrganizations(filteredOrganizations);
+  try {
+    await prisma.pendingOrganization.delete({
+      where: { id }
+    });
+  } catch (error) {
+    console.error('Error removing pending organization:', error);
+    throw error;
+  }
 }
 
 // Get organization by ID
 export async function getPendingOrganizationById(id: string): Promise<PendingOrganization | null> {
-  const organizations = await readPendingOrganizations();
-  return organizations.find(org => org.id === id) || null;
+  try {
+    const org = await prisma.pendingOrganization.findUnique({
+      where: { id }
+    });
+
+    if (!org) {
+      return null;
+    }
+
+    return {
+      ...org,
+      submittedAt: org.submittedAt.toISOString()
+    };
+  } catch (error) {
+    console.error('Error getting pending organization by ID:', error);
+    return null;
+  }
 } 
